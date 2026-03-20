@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>পূর্ববর্তী অনুষ্ঠান — মন্দির</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="flower-canvas"></canvas>
+<div id="nav-ph"></div><div id="ticker-ph"></div>
+<div class="page-wrapper">
+  <div class="page-header"><span class="label">স্মৃতির পাতা</span><h1>পূর্ববর্তী অনুষ্ঠান</h1></div>
+  <section style="padding:3rem 2rem;max-width:1100px;margin:0 auto">
+    <div id="past-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.4rem"></div>
+  </section>
+</div>
+<div id="footer-ph"></div>
+<script src="../database/db.js"></script>
+<script src="js/main.js"></script>
+<script src="js/animations.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  if(typeof MandirFX!=='undefined')MandirFX.initTheme();
+  DB.init();DB.checkEventStatus();const db=DB.get(),s=db.settings;
+  document.getElementById('nav-ph').innerHTML=getNavHTML(s);
+  document.getElementById('ticker-ph').innerHTML=getTickerHTML(s.ticker_text);
+  document.getElementById('footer-ph').innerHTML=getFooterHTML(s);
+  document.title='পূর্ববর্তী — '+s.mandir_name;initNav();
+  const past=(db.past_events||[]).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const grid=document.getElementById('past-grid');
+  if(!past.length){grid.innerHTML='<p style="text-align:center;color:var(--gray);grid-column:1/-1;padding:4rem">কোনো পূর্ববর্তী অনুষ্ঠান নেই।</p>';return;}
+  past.forEach(ev=>{
+    const photos=[...(ev.theme_image?[ev.theme_image]:[]),...(ev.photos||[]).map(p=>p.url||p),...(ev.images||[]).map(p=>p.url||p)];
+    const thumb=photos[0]||null;
+    const card=document.createElement('div');card.className='card fade-in';card.style.cursor='pointer';
+    card.innerHTML=`${thumb?`<img src="${thumb}" style="width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:.8rem;border:1px solid var(--border-light)">`:'<div style="height:100px;background:rgba(212,160,23,.04);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;margin-bottom:.8rem">📸</div>'}<div style="font-size:.88rem;color:var(--gold);font-weight:600;margin-bottom:.25rem">${ev.title}</div><div style="font-size:.72rem;color:var(--gray);margin-bottom:.4rem">${formatDateBn(ev.date)}</div><div style="font-size:.73rem;color:rgba(255,255,255,.5)">${(ev.description||'').substring(0,80)}…</div><div style="margin-top:.6rem;font-size:.68rem;color:var(--text3)">${photos.length} টি ছবি</div>`;
+    card.onclick=()=>window.location='event.html?id='+ev.id;
+    grid.appendChild(card);
+  });
+  initScrollAnim();
+});
+</script>
+</body>
+</html>

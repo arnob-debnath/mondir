@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>সেবা ও দান — মন্দির</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="flower-canvas"></canvas>
+<div id="nav-ph"></div><div id="ticker-ph"></div>
+<div class="page-wrapper">
+  <div class="page-header"><span class="label">আপনার অবদান</span><h1>সেবা ও দান</h1></div>
+  <section style="padding:3rem 2rem;max-width:900px;margin:0 auto">
+    <div id="seva-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.2rem;margin-bottom:2rem"></div>
+    <div class="card fade-in">
+      <h3 style="color:var(--gold);margin-bottom:1rem;font-size:.95rem">💛 অনুদান করুন</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:.8rem">
+        <div><label style="display:block;font-size:.72rem;color:rgba(255,255,255,.5);margin-bottom:.25rem">নাম</label><input class="form-input" id="d-name" placeholder="আপনার নাম"></div>
+        <div><label style="display:block;font-size:.72rem;color:rgba(255,255,255,.5);margin-bottom:.25rem">মোবাইল</label><input class="form-input" id="d-phone" placeholder="+880..."></div>
+      </div>
+      <div style="margin-bottom:.8rem"><label style="display:block;font-size:.72rem;color:rgba(255,255,255,.5);margin-bottom:.25rem">পরিমাণ (৳)</label><input class="form-input" id="d-amount" type="number" placeholder="যেকোনো পরিমাণ"></div>
+      <div style="margin-bottom:.8rem"><label style="display:block;font-size:.72rem;color:rgba(255,255,255,.5);margin-bottom:.25rem">পেমেন্ট মাধ্যম</label>
+        <select class="form-select" id="d-method"><option value="bKash">📱 bKash</option><option value="Nagad">📱 Nagad</option><option value="Rocket">📱 Rocket</option><option value="নগদ অর্থ">💵 নগদ অর্থ</option></select>
+      </div>
+      <button class="btn btn-gold" onclick="submitDon()">💛 অনুদান জমা দিন</button>
+    </div>
+  </section>
+</div>
+<div id="footer-ph"></div>
+<script src="../database/db.js"></script>
+<script src="js/main.js"></script>
+<script src="js/animations.js"></script>
+<script>
+let selSevaName='সাধারণ অনুদান';
+document.addEventListener('DOMContentLoaded',()=>{
+  if(typeof MandirFX!=='undefined')MandirFX.initTheme();
+  DB.init();const db=DB.get(),s=db.settings;
+  document.getElementById('nav-ph').innerHTML=getNavHTML(s);
+  document.getElementById('ticker-ph').innerHTML=getTickerHTML(s.ticker_text);
+  document.getElementById('footer-ph').innerHTML=getFooterHTML(s);
+  document.title='সেবা — '+s.mandir_name;initNav();
+  const grid=document.getElementById('seva-grid');
+  (db.seva_options||[]).forEach(sv=>{
+    const card=document.createElement('div');card.className='card fade-in';card.style.textAlign='center';card.style.cursor='pointer';
+    if(sv.featured)card.style.borderColor='var(--gold)';
+    card.innerHTML=`<div style="font-size:2rem;margin-bottom:.5rem">${sv.icon||'🌸'}</div>${sv.featured?'<span class="badge badge-gold" style="margin-bottom:.4rem">জনপ্রিয়</span><br>':''}<div style="color:var(--gold);font-size:.88rem;font-weight:700;margin-bottom:.3rem">${sv.name}</div><div style="font-size:1.2rem;color:var(--gold-light);font-weight:700;margin-bottom:.3rem">৳ ${sv.amount.toLocaleString()}</div><div style="font-size:.72rem;color:var(--gray)">${sv.description||''}</div>`;
+    card.onclick=()=>{selSevaName=sv.name;document.querySelectorAll('#seva-grid .card').forEach(c=>c.style.borderColor='');card.style.borderColor='var(--gold-light)';document.getElementById('d-amount').value=sv.amount;};
+    grid.appendChild(card);
+  });
+  initScrollAnim();
+});
+function submitDon(){
+  const name=document.getElementById('d-name').value.trim()||'অজ্ঞাত';
+  const phone=document.getElementById('d-phone').value.trim();
+  const amount=parseFloat(document.getElementById('d-amount').value);
+  if(!amount||amount<=0){showToast('পরিমাণ দিন','error');return;}
+  DB.addDonation({name,phone,amount,seva:selSevaName,payment_method:document.getElementById('d-method').value});
+  showToast('🙏 অনুদানের জন্য ধন্যবাদ!','success');
+  ['d-name','d-phone','d-amount'].forEach(id=>document.getElementById(id).value='');
+}
+</script>
+</body>
+</html>

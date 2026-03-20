@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>একাদশী — মন্দির</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="flower-canvas"></canvas>
+<div id="nav-ph"></div>
+<div id="ticker-ph"></div>
+<div class="page-wrapper">
+  <div class="page-header" style="background:linear-gradient(180deg,rgba(30,5,50,1),rgba(10,10,10,.95))">
+    <span class="label" style="border-color:rgba(180,100,255,.3);color:#c084fc">পবিত্র তিথি</span>
+    <h1 style="background:linear-gradient(135deg,#e9d5ff,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">একাদশী উপবাস তালিকা</h1>
+    <p style="font-size:.8rem;color:rgba(180,100,255,.6);margin-top:.4rem">পারণের সময়সহ সম্পূর্ণ বার্ষিক তালিকা</p>
+    <div class="section-divider" style="margin-top:1rem"><div class="divider-line" style="background:linear-gradient(to right,transparent,#c084fc)"></div><span class="divider-dot">🌙</span><div class="divider-line r" style="background:linear-gradient(to left,transparent,#c084fc)"></div></div>
+  </div>
+  <section style="padding:3rem 2rem;max-width:1000px;margin:0 auto">
+    <!-- Next ekadashi highlight -->
+    <div id="next-eka" style="margin-bottom:2rem" class="fade-in"></div>
+    <!-- Full table -->
+    <div style="overflow-x:auto" class="fade-in">
+      <table style="width:100%;border-collapse:collapse;font-size:.82rem">
+        <thead>
+          <tr style="background:rgba(180,100,255,.08)">
+            <th style="padding:.7rem .9rem;text-align:left;color:#c084fc;border-bottom:1px solid rgba(180,100,255,.2);font-size:.68rem;letter-spacing:2px;text-transform:uppercase">তারিখ</th>
+            <th style="padding:.7rem .9rem;text-align:left;color:#c084fc;border-bottom:1px solid rgba(180,100,255,.2);font-size:.68rem;letter-spacing:2px;text-transform:uppercase">একাদশীর নাম</th>
+            <th style="padding:.7rem .9rem;text-align:left;color:#c084fc;border-bottom:1px solid rgba(180,100,255,.2);font-size:.68rem;letter-spacing:2px;text-transform:uppercase">পক্ষ</th>
+            <th style="padding:.7rem .9rem;text-align:left;color:#c084fc;border-bottom:1px solid rgba(180,100,255,.2);font-size:.68rem;letter-spacing:2px;text-transform:uppercase">মাস</th>
+            <th style="padding:.7rem .9rem;text-align:left;color:#c084fc;border-bottom:1px solid rgba(180,100,255,.2);font-size:.68rem;letter-spacing:2px;text-transform:uppercase">পারণের সময়</th>
+          </tr>
+        </thead>
+        <tbody id="eka-tbody"></tbody>
+      </table>
+    </div>
+    <!-- Info box -->
+    <div class="card fade-in" style="margin-top:2rem;background:linear-gradient(135deg,rgba(120,0,200,.08),rgba(180,100,255,.05));border-color:rgba(180,100,255,.2)">
+      <h3 style="color:#c084fc;margin-bottom:.8rem;font-size:.9rem">📖 একাদশী পালনের নিয়ম</h3>
+      <div style="font-size:.82rem;color:rgba(255,255,255,.72);line-height:1.9">
+        <p>• একাদশী তিথিতে উপবাস পালন করুন। শুধু ফল ও জল গ্রহণ করুন।</p>
+        <p>• দ্বাদশী তিথিতে (পরের দিন) নির্ধারিত সময়ে পারণ করুন।</p>
+        <p>• পারণের আগে ভগবানকে ভোগ নিবেদন করুন এবং তুলসীপাতা সহ জলপান করুন।</p>
+        <p>• <strong style="color:#c084fc">কৃষ্ণপক্ষ:</strong> সূর্যোদয়ের পর ৬:৩০ — ৮:৪৫ AM পারণ করুন।</p>
+        <p>• <strong style="color:#c084fc">শুক্লপক্ষ:</strong> সূর্যোদয়ের পর ৬:০০ — ৮:৩০ AM পারণ করুন।</p>
+      </div>
+    </div>
+  </section>
+</div>
+<div id="footer-ph"></div>
+<script src="../database/db.js"></script>
+<script src="js/main.js"></script>
+<script src="js/animations.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  if(typeof MandirFX!=='undefined')MandirFX.initTheme();
+  DB.init();
+  const db=DB.get(),s=db.settings;
+  document.getElementById('nav-ph').innerHTML=getNavHTML(s);
+  document.getElementById('ticker-ph').innerHTML=getTickerHTML(s.ticker_text);
+  document.getElementById('footer-ph').innerHTML=getFooterHTML(s);
+  document.title='একাদশী — '+s.mandir_name;
+  initNav();
+
+  const today=new Date();today.setHours(0,0,0,0);
+  const list=getEkadashiList();
+  const next=list.find(e=>new Date(e.date)>=today);
+  if(next){
+    const d=new Date(next.date);const diff=Math.ceil((d-today)/86400000);
+    const isToday=diff===0;
+    document.getElementById('next-eka').innerHTML=`<div style="background:linear-gradient(135deg,rgba(120,0,200,.15),rgba(180,100,255,.08));border:1px solid rgba(180,100,255,.35);border-radius:18px;padding:1.5rem;display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap">
+      <div style="font-size:3rem">🌙</div>
+      <div><div style="font-size:.72rem;color:rgba(180,100,255,.8);text-transform:uppercase;letter-spacing:2px;margin-bottom:.2rem">${isToday?'🔴 আজ একাদশী!':'পরবর্তী একাদশী'}</div>
+      <div style="font-family:var(--font-display);font-size:1.1rem;color:#e9d5ff;margin-bottom:.3rem">${next.name}</div>
+      <div style="font-size:.8rem;color:rgba(255,255,255,.55)">${formatDateBn(next.date)} — ${next.paksha} — ${next.month}</div>
+      ${!isToday?`<div style="margin-top:.5rem;font-size:.85rem;color:#c084fc;font-weight:700">${diff} দিন বাকি</div>`:''}
+      </div>
+      <div style="margin-left:auto;background:rgba(180,100,255,.1);border:1px solid rgba(180,100,255,.2);border-radius:12px;padding:.8rem 1.2rem;text-align:center">
+        <div style="font-size:.68rem;color:rgba(180,100,255,.8);text-transform:uppercase;letter-spacing:1px;margin-bottom:.2rem">পারণ</div>
+        <div style="font-size:.8rem;color:#e9d5ff">${PARON_TIMES[next.paksha]||''}</div>
+        <div style="font-size:.68rem;color:rgba(255,255,255,.4);margin-top:.2rem">পরের দিন</div>
+      </div>
+    </div>`;
+  }
+
+  const tbody=document.getElementById('eka-tbody');
+  list.forEach(e=>{
+    const d=new Date(e.date);d.setHours(0,0,0,0);const isToday=d.getTime()===today.getTime();const isPast=d<today;
+    const pd=new Date(e.date);pd.setDate(pd.getDate()+1);const paronDate=`${pd.getDate()} ${['জানু','ফেব্রু','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টে','অক্টো','নভে','ডিসে'][pd.getMonth()]}`;
+    tbody.innerHTML+=`<tr style="${isToday?'background:rgba(180,100,255,.1);':''}${isPast?'opacity:.5':''}">
+      <td style="padding:.65rem .9rem;border-bottom:1px solid rgba(255,255,255,.04);color:${isToday?'#c084fc':'var(--text2)'};">${formatDateBn(e.date)}</td>
+      <td style="padding:.65rem .9rem;border-bottom:1px solid rgba(255,255,255,.04);color:${isToday?'#e9d5ff':'var(--text)'}; font-weight:${isToday?700:400}">${isToday?'🙏 ':''}${e.name}</td>
+      <td style="padding:.65rem .9rem;border-bottom:1px solid rgba(255,255,255,.04)"><span style="background:rgba(${e.paksha==='কৃষ্ণপক্ষ'?'99,102,241':'192,132,252'},.15);color:${e.paksha==='কৃষ্ণপক্ষ'?'#818cf8':'#c084fc'};border:1px solid rgba(${e.paksha==='কৃষ্ণপক্ষ'?'99,102,241':'192,132,252'},.3);border-radius:20px;padding:.18rem .6rem;font-size:.7rem">${e.paksha}</span></td>
+      <td style="padding:.65rem .9rem;border-bottom:1px solid rgba(255,255,255,.04);color:var(--gray)">${e.month}</td>
+      <td style="padding:.65rem .9rem;border-bottom:1px solid rgba(255,255,255,.04)"><div style="font-size:.75rem;color:rgba(180,100,255,.8)">${paronDate}</div><div style="font-size:.68rem;color:rgba(255,255,255,.4)">${PARON_TIMES[e.paksha]||''}</div></td>
+    </tr>`;
+  });
+  initScrollAnim();
+});
+</script>
+</body>
+</html>

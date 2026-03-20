@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ইভেন্ট — মন্দির</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="flower-canvas"></canvas>
+<div id="nav-ph"></div>
+<div id="ticker-ph"></div>
+<div class="page-wrapper">
+  <div id="ev-wrap" style="max-width:900px;margin:0 auto;padding:2rem"></div>
+</div>
+<!-- Donate Modal -->
+<div class="ev-donate-popup" id="donate-popup" style="display:none">
+  <div class="ev-donate-popup-bg" onclick="document.getElementById('donate-popup').style.display='none'"></div>
+  <div class="ev-donate-box">
+    <button onclick="document.getElementById('donate-popup').style.display='none'" style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,.06);border:none;color:rgba(255,255,255,.5);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center">×</button>
+    <div style="text-align:center;margin-bottom:1.2rem">
+      <div style="font-size:2rem;margin-bottom:.3rem">💛</div>
+      <div style="font-family:var(--font-display);font-size:.85rem;color:var(--gold)" id="don-popup-title">অনুদান করুন</div>
+    </div>
+    <div class="fg"><label class="lbl" style="color:rgba(255,255,255,.5);font-size:.72rem">আপনার নাম</label><input class="form-input" id="don-name" placeholder="নাম লিখুন"></div>
+    <div class="fg"><label class="lbl" style="color:rgba(255,255,255,.5);font-size:.72rem">মোবাইল নম্বর</label><input class="form-input" id="don-phone" placeholder="+880..."></div>
+    <div style="margin-bottom:1rem"><label class="lbl" style="color:rgba(255,255,255,.5);font-size:.72rem;display:block;margin-bottom:.5rem">পরিমাণ নির্বাচন করুন (৳)</label>
+    <div class="donate-amt-grid">
+      <button class="donate-amt-btn" onclick="setAmt(101)">৳ ১০১</button>
+      <button class="donate-amt-btn" onclick="setAmt(251)">৳ ২৫১</button>
+      <button class="donate-amt-btn" onclick="setAmt(501)">৳ ৫০১</button>
+      <button class="donate-amt-btn" onclick="setAmt(1001)">৳ ১,০০১</button>
+      <button class="donate-amt-btn" onclick="setAmt(2001)">৳ ২,০০১</button>
+      <button class="donate-amt-btn" id="custom-btn" onclick="toggleCustom()">অন্য পরিমাণ</button>
+    </div>
+    <input class="form-input" id="don-custom" placeholder="নিজে পরিমাণ লিখুন" style="margin-top:.5rem;display:none">
+    </div>
+    <div class="fg"><label class="lbl" style="color:rgba(255,255,255,.5);font-size:.72rem">পেমেন্ট মাধ্যম</label>
+    <select class="form-select" id="don-method">
+      <option value="bKash">📱 bKash</option>
+      <option value="Nagad">📱 Nagad</option>
+      <option value="Rocket">📱 Rocket</option>
+      <option value="নগদ অর্থ">💵 নগদ অর্থ</option>
+    </select></div>
+    <button class="btn btn-gold" style="width:100%;justify-content:center;font-size:.9rem" onclick="submitDonate()">💛 অনুদান নিশ্চিত করুন</button>
+  </div>
+</div>
+<!-- Photo Download -->
+<div id="photo-popup" style="display:none;position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center">
+  <div style="background:linear-gradient(145deg,#0f0820,#1a0d30);border:1px solid rgba(212,160,23,.3);border-radius:20px;padding:1.8rem;max-width:500px;width:93%;max-height:85vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem"><span style="color:var(--gold);font-weight:600">📸 ছবি ডাউনলোড</span><button onclick="closePhotoPopup()" style="background:rgba(255,255,255,.06);border:none;color:rgba(255,255,255,.5);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1rem">×</button></div>
+    <div id="photo-select-grid" class="photo-select-grid"></div>
+    <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:.8rem" onclick="downloadSelected()">📥 নির্বাচিত ছবি ডাউনলোড করুন</button>
+  </div>
+</div>
+<div id="footer-ph"></div>
+<script src="../database/db.js"></script>
+<script src="js/main.js"></script>
+<script src="js/animations.js"></script>
+<script>
+let currentEv=null,selAmt=0,selPhotos=[];
+
+function setAmt(a){selAmt=a;document.querySelectorAll('.donate-amt-btn').forEach(b=>b.classList.remove('selected'));const btn=Array.from(document.querySelectorAll('.donate-amt-btn')).find(b=>b.getAttribute('onclick')===`setAmt(${a})`);if(btn)btn.classList.add('selected');document.getElementById('don-custom').style.display='none';}
+function toggleCustom(){document.getElementById('don-custom').style.display=document.getElementById('don-custom').style.display==='none'?'block':'none';document.querySelectorAll('.donate-amt-btn').forEach(b=>b.classList.remove('selected'));document.getElementById('custom-btn').classList.add('selected');}
+
+function openDonate(){document.getElementById('donate-popup').style.display='flex';}
+function submitDonate(){
+  const name=document.getElementById('don-name').value.trim()||'অজ্ঞাত';
+  const phone=document.getElementById('don-phone').value.trim();
+  const custom=parseFloat(document.getElementById('don-custom').value)||0;
+  const amt=custom>0?custom:selAmt;
+  if(!amt){showToast('পরিমাণ নির্বাচন করুন','error');return;}
+  const method=document.getElementById('don-method').value;
+  DB.addDonation({name,phone,amount:amt,seva:currentEv?.title||'ইভেন্ট',payment_method:method});
+  document.getElementById('donate-popup').style.display='none';
+  showToast('🙏 অনুদানের জন্য ধন্যবাদ! আপনার নাম তালিকায় যোগ হয়েছে।','success');
+}
+
+function openPhotoPopup(photos){
+  selPhotos=[];const grid=document.getElementById('photo-select-grid');
+  grid.innerHTML=photos.map((p,i)=>{const url=p.url||p;return`<div class="photo-select-item" id="psi-${i}" onclick="togglePhoto(${i},'${url}')"><img src="${url}" alt=""><div class="photo-select-check">✓</div></div>`;}).join('');
+  const popup=document.getElementById('photo-popup');popup.style.display='flex';document.body.style.overflow='hidden';
+}
+function togglePhoto(i,url){const el=document.getElementById('psi-'+i);el.classList.toggle('selected');if(el.classList.contains('selected'))selPhotos.push(url);else selPhotos=selPhotos.filter(u=>u!==url);}
+function closePhotoPopup(){document.getElementById('photo-popup').style.display='none';document.body.style.overflow='';}
+function downloadSelected(){if(!selPhotos.length){showToast('কোনো ছবি নির্বাচিত হয়নি','error');return;}selPhotos.forEach((url,i)=>{const a=document.createElement('a');a.href=url;a.download='mandir-photo-'+(i+1)+'.jpg';document.body.appendChild(a);a.click();a.remove();});showToast(`✅ ${selPhotos.length} টি ছবি ডাউনলোড হচ্ছে…`);}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  if(typeof MandirFX!=='undefined')MandirFX.initTheme();
+  DB.init();DB.checkEventStatus();
+  const db=DB.get(),s=db.settings;
+  document.getElementById('nav-ph').innerHTML=getNavHTML(s);
+  document.getElementById('ticker-ph').innerHTML=getTickerHTML(s.ticker_text);
+  document.getElementById('footer-ph').innerHTML=getFooterHTML(s);
+  initNav();
+
+  const params=new URLSearchParams(window.location.search);
+  const id=parseInt(params.get('id'));
+  const allEv=[...(db.events||[]),...(db.past_events||[])];
+  const ev=allEv.find(e=>e.id===id);
+  const wrap=document.getElementById('ev-wrap');
+
+  if(!ev){wrap.innerHTML='<p style="text-align:center;color:var(--gray);padding:4rem">ইভেন্ট পাওয়া যায়নি।</p>';return;}
+  currentEv=ev;
+  document.title=ev.title+' — মন্দির';
+  document.getElementById('don-popup-title').textContent=ev.donation_title||ev.title+' অনুদান';
+
+  const allPhotos=[...(ev.theme_image?[{url:ev.theme_image}]:[]),...(ev.photos||[]),...(ev.images||[])];
+  const gallery=allPhotos.length>1?allPhotos.slice(1):[];
+
+  wrap.innerHTML=`
+    ${ev.theme_image?`<div style="border-radius:20px;overflow:hidden;margin-bottom:2rem;max-height:420px"><img src="${ev.theme_image}" style="width:100%;height:100%;object-fit:cover" alt="${ev.title}"></div>`:''}
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.2rem">
+      <span class="badge badge-gold">${ev.tag}</span>
+      ${ev.donation_enabled?'<span class="badge badge-green">💛 অনুদান খোলা</span>':''}
+      ${(ev.end_date||ev.date)<new Date().toISOString().split('T')[0]?'<span class="badge badge-red">সম্পন্ন</span>':'<span class="badge badge-blue">আসন্ন</span>'}
+    </div>
+    <h1 style="font-family:var(--font-display);font-size:clamp(1.1rem,3vw,1.8rem);background:linear-gradient(135deg,var(--gold-light),var(--saffron));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:1rem">${ev.title}</h1>
+    <div style="display:flex;gap:1.2rem;flex-wrap:wrap;margin-bottom:1.5rem">
+      <div style="display:flex;align-items:center;gap:.4rem;font-size:.82rem;color:var(--gray)">📅 ${formatDateBn(ev.date)}${ev.end_date&&ev.end_date!==ev.date?' — '+formatDateBn(ev.end_date):''}</div>
+      ${ev.time?`<div style="display:flex;align-items:center;gap:.4rem;font-size:.82rem;color:var(--gray)">🕐 ${fmtTime(ev.time,ev.ampm)}${ev.end_time?' → '+fmtTime(ev.end_time,ev.end_ampm):''}</div>`:''}
+    </div>
+    <p style="font-size:.9rem;color:rgba(255,255,255,.78);line-height:2;margin-bottom:1.8rem">${(ev.description||'').replace(/\n/g,'<br>')}</p>
+    <div style="display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:2rem">
+      ${ev.donation_enabled?`<button class="btn btn-gold" onclick="openDonate()">💛 অনুদান করুন</button>`:''}
+      ${allPhotos.length>0?`<button class="btn btn-outline" onclick="openPhotoPopup(${JSON.stringify(allPhotos)})">📸 ছবি ডাউনলোড</button>`:''}
+      <a href="events.html" class="btn btn-outline">← সকল উৎসব</a>
+    </div>
+    ${gallery.length>0?`<h3 style="color:var(--gold);font-size:.9rem;margin-bottom:.8rem">📸 ছবির গ্যালারি</h3><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.5rem;margin-bottom:2rem">${gallery.map(p=>`<img src="${p.url||p}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;border:1px solid var(--border-light);cursor:pointer" onclick="openPhotoPopup(${JSON.stringify(allPhotos)})" alt="">`).join('')}</div>`:''}
+  `;
+  initScrollAnim();
+});
+</script>
+</body>
+</html>
