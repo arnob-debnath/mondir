@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>সংগঠন — মন্দির</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="flower-canvas"></canvas>
+<div id="nav-ph"></div><div id="ticker-ph"></div>
+<div class="page-wrapper">
+  <div class="page-header"><span class="label">ছাত্রসংঘ</span><h1>সংগঠন পরিচিতি</h1></div>
+  <section style="padding:3rem 2rem;max-width:900px;margin:0 auto" id="org-content"></section>
+</div>
+<div id="footer-ph"></div>
+<script src="../database/db.js"></script>
+<script src="js/main.js"></script>
+<script src="js/animations.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  if(typeof MandirFX!=='undefined')MandirFX.initTheme();
+  DB.init();const db=DB.get(),s=db.settings;
+  document.getElementById('nav-ph').innerHTML=getNavHTML(s);
+  document.getElementById('ticker-ph').innerHTML=getTickerHTML(s.ticker_text);
+  document.getElementById('footer-ph').innerHTML=getFooterHTML(s);
+  const org=db.organization||{};document.title=(org.name||'সংগঠন')+' — '+s.mandir_name;initNav();
+  const el=document.getElementById('org-content');
+  el.innerHTML=`
+    ${org.cover_photo?`<div style="border-radius:18px;overflow:hidden;margin-bottom:2rem;height:240px"><img src="${org.cover_photo}" style="width:100%;height:100%;object-fit:cover"></div>`:''}
+    <div style="display:flex;gap:1.2rem;align-items:center;margin-bottom:1.5rem">
+      ${org.logo?`<img src="${org.logo}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);flex-shrink:0">`:`<div style="width:80px;height:80px;border-radius:50%;background:rgba(212,160,23,.1);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0">🏛</div>`}
+      <div>
+        <h1 style="font-family:var(--font-display);font-size:1.2rem;background:linear-gradient(135deg,var(--gold-light),var(--saffron));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.2rem">${org.name||'ছাত্রসংঘ'}</h1>
+        <div style="font-size:.78rem;color:var(--gray)">প্রতিষ্ঠাকাল: ${org.founded||'—'}</div>
+        <div style="display:flex;gap:.5rem;margin-top:.5rem">
+          ${org.facebook_link?`<a href="${org.facebook_link}" target="_blank" class="btn btn-sm btn-outline">📘 Facebook</a>`:''}
+          ${org.website_link?`<a href="${org.website_link}" target="_blank" class="btn btn-sm btn-outline">🌐 Website</a>`:''}
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem">
+      <div class="card fade-in" style="text-align:center"><div style="font-size:1.5rem;color:var(--gold);font-weight:700">${org.members||'—'}</div><div style="font-size:.72rem;color:var(--gray)">সদস্য</div></div>
+      <div class="card fade-in" style="text-align:center"><div style="font-size:1.5rem;color:var(--gold);font-weight:700">${org.volunteers||'—'}</div><div style="font-size:.72rem;color:var(--gray)">স্বেচ্ছাসেবী</div></div>
+      <div class="card fade-in" style="text-align:center"><div style="font-size:1.5rem;color:var(--gold);font-weight:700">${org.programs_yearly||'—'}</div><div style="font-size:.72rem;color:var(--gray)">বার্ষিক অনুষ্ঠান</div></div>
+    </div>
+    ${org.history?`<div class="card fade-in" style="margin-bottom:1rem"><h3 style="color:var(--gold);font-size:.88rem;margin-bottom:.6rem">📜 ইতিহাস</h3><p style="font-size:.85rem;color:rgba(255,255,255,.72);line-height:1.9">${org.history}</p></div>`:''}
+    ${org.mission?`<div class="card fade-in" style="margin-bottom:1rem"><h3 style="color:var(--saffron);font-size:.88rem;margin-bottom:.6rem">🎯 মিশন</h3><p style="font-size:.85rem;color:rgba(255,255,255,.72);line-height:1.9">${org.mission}</p></div>`:''}
+    ${org.vision?`<div class="card fade-in"><h3 style="color:var(--saffron);font-size:.88rem;margin-bottom:.6rem">🌟 ভিশন</h3><p style="font-size:.85rem;color:rgba(255,255,255,.72);line-height:1.9">${org.vision}</p></div>`:''}
+  `;
+  initScrollAnim();
+});
+</script>
+</body>
+</html>

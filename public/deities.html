@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>দেব-দেবী — মন্দির</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="flower-canvas"></canvas>
+<div id="nav-ph"></div><div id="ticker-ph"></div>
+<div class="page-wrapper">
+  <div class="page-header"><span class="label">আমাদের আরাধ্য</span><h1>দেব-দেবী</h1></div>
+  <section style="padding:3rem 2rem;max-width:1100px;margin:0 auto">
+    <div id="deities-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.4rem"></div>
+  </section>
+</div>
+<div id="footer-ph"></div>
+<script src="../database/db.js"></script>
+<script src="js/main.js"></script>
+<script src="js/animations.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  if(typeof MandirFX!=='undefined')MandirFX.initTheme();
+  DB.init();const db=DB.get(),s=db.settings;
+  document.getElementById('nav-ph').innerHTML=getNavHTML(s);
+  document.getElementById('ticker-ph').innerHTML=getTickerHTML(s.ticker_text);
+  document.getElementById('footer-ph').innerHTML=getFooterHTML(s);
+  document.title='দেব-দেবী — '+s.mandir_name;initNav();
+  const grid=document.getElementById('deities-grid');
+  (db.deities||[]).forEach(d=>{
+    const card=document.createElement('div');card.className='card fade-in';card.style.textAlign='center';card.style.cursor='pointer';
+    card.innerHTML=`<div style="width:110px;height:110px;border-radius:50%;border:3px solid var(--gold);margin:0 auto 1rem;overflow:hidden;background:rgba(212,160,23,.06);display:flex;align-items:center;justify-content:center;font-size:3rem">${d.image?`<img src="${d.image}" style="width:100%;height:100%;object-fit:cover" alt="${d.name}">`:'🙏'}</div><div style="font-family:var(--font-display);font-size:.85rem;color:var(--gold);margin-bottom:.2rem">${d.name}</div><div style="font-size:.72rem;color:var(--saffron);margin-bottom:.6rem">${d.title||''}</div><div style="font-size:.78rem;color:rgba(255,255,255,.6);line-height:1.7">${(d.description||'').substring(0,100)}</div><div style="margin-top:.8rem;font-size:.7rem;color:rgba(212,160,23,.5);cursor:pointer" onclick="event.stopPropagation();window.mandirAudio&&(\'${d.sound}\'==='conch'?window.mandirAudio.playConch():window.mandirAudio.playBell())">${d.sound==='conch'?'🐚 শঙ্খ ক্লিক':'🔔 ঘণ্টা ক্লিক'}</div>`;
+    grid.appendChild(card);
+  });
+  if(!db.deities||!db.deities.length)grid.innerHTML='<p style="text-align:center;color:var(--gray);grid-column:1/-1;padding:4rem">কোনো তথ্য নেই।</p>';
+  initScrollAnim();
+});
+</script>
+</body>
+</html>

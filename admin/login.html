@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>অ্যাডমিন লগইন — মন্দির</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Noto+Serif+Bengali:wght@400;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Serif Bengali',serif;background:#080808;color:#FAFAFA;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;}
+.box{background:#111;border:1px solid rgba(212,160,23,0.25);border-radius:24px;padding:2.5rem 2rem;width:100%;max-width:400px;text-align:center;}
+.om{font-size:3rem;color:#D4A017;display:block;margin-bottom:.5rem;animation:pulse 2.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{text-shadow:0 0 20px rgba(212,160,23,.5);}50%{text-shadow:0 0 40px rgba(212,160,23,.9);}}
+h1{font-family:'Cinzel Decorative',serif;font-size:1rem;background:linear-gradient(135deg,#FFD700,#E8830A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.3rem;}
+.sub{font-size:.75rem;color:rgba(255,255,255,.4);margin-bottom:2rem;}
+.fg{margin-bottom:1rem;text-align:left;}
+.lbl{display:block;font-size:.75rem;color:rgba(255,255,255,.5);margin-bottom:.3rem;}
+.inp{width:100%;padding:.7rem 1rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#FAFAFA;font-family:'Noto Serif Bengali',serif;font-size:.88rem;outline:none;transition:border-color .2s;}
+.inp:focus{border-color:#D4A017;}
+.btn{width:100%;padding:.75rem;background:linear-gradient(135deg,#E8830A,#8B6914);color:#050505;border:none;border-radius:10px;font-size:.95rem;font-weight:700;font-family:'Noto Serif Bengali',serif;cursor:pointer;transition:all .2s;margin-top:.5rem;}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(232,131,10,.35);}
+.err{color:#E74C3C;font-size:.78rem;margin-top:.8rem;padding:.5rem;border-radius:6px;background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.2);display:none;}
+.hint{font-size:.68rem;color:rgba(255,255,255,.18);margin-top:1rem;}
+.reset-link{font-size:.68rem;color:rgba(231,76,60,.5);cursor:pointer;margin-top:.5rem;display:block;text-decoration:underline;}
+.reset-link:hover{color:rgba(231,76,60,.8);}
+.debug{font-size:.62rem;color:rgba(255,255,255,.2);margin-top:.8rem;word-break:break-all;}
+</style>
+</head>
+<body>
+<div class="box">
+  <span class="om">ॐ</span>
+  <h1>অ্যাডমিন লগইন</h1>
+  <p class="sub">মন্দির ওয়েবসাইট ব্যবস্থাপনা</p>
+
+  <div class="fg">
+    <label class="lbl">ব্যবহারকারীর নাম</label>
+    <input class="inp" type="text" id="uname" placeholder="admin" autocomplete="username">
+  </div>
+  <div class="fg">
+    <label class="lbl">পাসওয়ার্ড</label>
+    <input class="inp" type="password" id="pass" placeholder="••••••••" autocomplete="current-password"
+      onkeydown="if(event.key==='Enter')doLogin()">
+  </div>
+
+  <button class="btn" onclick="doLogin()">🔐 লগইন করুন</button>
+  <div class="err" id="err"></div>
+  <p class="hint">ডিফল্ট লগইন: <strong style="color:rgba(212,160,23,.6)">admin</strong> / <strong style="color:rgba(212,160,23,.6)">admin123</strong></p>
+  <span class="reset-link" onclick="resetAndLogin()">⚠️ লগইন হচ্ছে না? এখানে ক্লিক করে রিসেট করুন</span>
+  <div class="debug" id="dbg"></div>
+</div>
+
+<!-- db.js load করার চেষ্টা -->
+<script src="../database/db.js"></script>
+<script>
+// ===== INLINE FALLBACK LOGIN (db.js ছাড়াও কাজ করে) =====
+const DB_KEY = 'mandir_db';
+
+function getAdminCreds() {
+  try {
+    const raw = localStorage.getItem(DB_KEY);
+    if (!raw) return { username: 'admin', password: 'admin123' };
+    const db = JSON.parse(raw);
+    // admin key আছে কিনা দেখো
+    if (db && db.admin && db.admin.username) {
+      return { username: db.admin.username, password: db.admin.password };
+    }
+    return { username: 'admin', password: 'admin123' };
+  } catch(e) {
+    return { username: 'admin', password: 'admin123' };
+  }
+}
+
+function doLogin() {
+  const u = document.getElementById('uname').value.trim();
+  const p = document.getElementById('pass').value;
+  const errEl = document.getElementById('err');
+
+  if (!u || !p) {
+    errEl.textContent = '⚠️ ব্যবহারকারীর নাম ও পাসওয়ার্ড দিন।';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const creds = getAdminCreds();
+  document.getElementById('dbg').textContent = 'Expected: ' + creds.username + ' / ***';
+
+  if (creds.username === u && creds.password === p) {
+    // সফল লগইন
+    sessionStorage.setItem('mandir_admin', 'true');
+    sessionStorage.setItem('mandir_admin_time', new Date().toISOString());
+    window.location.href = 'dashboard.html';
+  } else {
+    errEl.textContent = '❌ ভুল তথ্য! সঠিক username ও password দিন। অথবা নিচের রিসেট বাটন ব্যবহার করুন।';
+    errEl.style.display = 'block';
+    setTimeout(() => { errEl.style.display = 'none'; }, 5000);
+  }
+}
+
+function resetAndLogin() {
+  if (!confirm('এটি admin credentials রিসেট করবে এবং admin/admin123 দিয়ে লগইন করবে। বাকি সব ডেটা থাকবে। নিশ্চিত?')) return;
+  try {
+    const raw = localStorage.getItem(DB_KEY);
+    const db = raw ? JSON.parse(raw) : {};
+    db.admin = { username: 'admin', password: 'admin123' };
+    localStorage.setItem(DB_KEY, JSON.stringify(db));
+    sessionStorage.setItem('mandir_admin', 'true');
+    sessionStorage.setItem('mandir_admin_time', new Date().toISOString());
+    window.location.href = 'dashboard.html';
+  } catch(e) {
+    alert('রিসেট করা গেল না: ' + e.message);
+  }
+}
+
+// যদি আগে থেকেই logged in থাকে
+if (sessionStorage.getItem('mandir_admin') === 'true') {
+  window.location.href = 'dashboard.html';
+}
+
+// db.js আছে কিনা চেক
+window.addEventListener('load', () => {
+  const dbStatus = (typeof DB !== 'undefined') ? '✓ db.js লোড হয়েছে' : '⚠️ db.js লোড হয়নি (inline fallback ব্যবহার হবে)';
+  document.getElementById('dbg').textContent = dbStatus;
+  setTimeout(() => { document.getElementById('dbg').textContent = ''; }, 4000);
+});
+</script>
+</body>
+</html>

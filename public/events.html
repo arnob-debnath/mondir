@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>উৎসব — মন্দির</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="flower-canvas"></canvas>
+<div id="nav-ph"></div>
+<div id="ticker-ph"></div>
+<div class="page-wrapper">
+  <div class="page-header">
+    <span class="label">মন্দির উৎসব</span>
+    <h1>আসন্ন উৎসব ও অনুষ্ঠান</h1>
+    <div class="section-divider" style="margin-top:1rem"><div class="divider-line"></div><span class="divider-dot">🎊</span><div class="divider-line r"></div></div>
+  </div>
+  <section style="padding:3rem 2rem;max-width:900px;margin:0 auto">
+    <div id="events-list" style="display:flex;flex-direction:column;gap:1.2rem"></div>
+  </section>
+</div>
+<div id="footer-ph"></div>
+<script src="../database/db.js"></script>
+<script src="js/main.js"></script>
+<script src="js/animations.js"></script>
+<script>
+const MON=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+document.addEventListener('DOMContentLoaded',()=>{
+  if(typeof MandirFX!=='undefined')MandirFX.initTheme();
+  DB.init();DB.checkEventStatus();
+  const db=DB.get(),s=db.settings;
+  document.getElementById('nav-ph').innerHTML=getNavHTML(s);
+  document.getElementById('ticker-ph').innerHTML=getTickerHTML(s.ticker_text);
+  document.getElementById('footer-ph').innerHTML=getFooterHTML(s);
+  document.title='উৎসব — '+s.mandir_name;
+  initNav();
+  const evs=(db.events||[]).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const el=document.getElementById('events-list');
+  if(!evs.length){el.innerHTML='<p style="text-align:center;color:var(--gray)">বর্তমানে কোনো আসন্ন ইভেন্ট নেই।</p>';return;}
+  evs.forEach(ev=>{
+    const d=new Date(ev.date);
+    el.innerHTML+=`<div class="ev-list-card fade-in" onclick="window.location='event.html?id=${ev.id}'" style="cursor:pointer">
+      ${ev.theme_image?`<img src="${ev.theme_image}" style="width:90px;height:90px;object-fit:cover;border-radius:12px;border:1px solid var(--border-light);flex-shrink:0" alt="">`:`<div class="ev-date-box"><div class="ev-date-day">${d.getDate()}</div><div class="ev-date-mon">${MON[d.getMonth()]}</div></div>`}
+      <div style="flex:1">
+        <div style="color:var(--gold);font-size:1rem;font-weight:700;margin-bottom:.3rem">${ev.title}</div>
+        <div style="font-size:.78rem;color:var(--gray);margin-bottom:.5rem">${formatDateBn(ev.date)} — ${fmtTime(ev.time,ev.ampm)}${ev.end_time?' → '+fmtTime(ev.end_time,ev.end_ampm):''}</div>
+        <div style="font-size:.82rem;color:rgba(255,255,255,.65);line-height:1.6">${(ev.description||'').substring(0,120)}…</div>
+        <div style="margin-top:.6rem;display:flex;gap:.4rem;flex-wrap:wrap"><span class="badge badge-gold">${ev.tag}</span>${ev.donation_enabled?'<span class="badge badge-green">💛 অনুদান খোলা</span>':''}</div>
+      </div>
+    </div>`;
+  });
+  initScrollAnim();
+});
+</script>
+</body>
+</html>

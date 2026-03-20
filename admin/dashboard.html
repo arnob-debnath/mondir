@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>অ্যাডমিন ড্যাশবোর্ড — মন্দির</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Noto+Serif+Bengali:wght@400;600;700&display=swap');
+:root{--gold:#D4A017;--gold-light:#FFD700;--saffron:#E8830A;--bg:#080808;--surface:#111;--surface2:#1A1A1A;--surface3:#222;--border:rgba(212,160,23,0.2);--bl:rgba(212,160,23,0.1);--text:#FAFAFA;--text2:rgba(250,250,250,0.7);--text3:rgba(250,250,250,0.35);--green:#2ECC71;--red:#E74C3C;--blue:#3498DB;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Serif Bengali',serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+.sidebar{width:230px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:100;overflow-y:auto;}
+.sb-logo{padding:1.2rem;border-bottom:1px solid var(--bl);text-align:center;}
+.sb-logo .om{font-size:2rem;color:var(--gold);display:block;}
+.sb-logo .t{font-family:'Cinzel Decorative',serif;font-size:0.65rem;color:var(--gold);margin-top:.2rem;}
+.sb-menu{flex:1;padding:.8rem 0;}
+.sb-sec{font-size:.58rem;color:var(--text3);letter-spacing:3px;text-transform:uppercase;padding:.7rem 1rem .2rem;}
+.menu-item{display:flex;align-items:center;gap:.6rem;padding:.6rem 1.1rem;cursor:pointer;transition:all .2s;font-size:.82rem;color:var(--text2);border-left:3px solid transparent;text-decoration:none;width:100%;background:none;border-right:none;border-top:none;border-bottom:none;font-family:inherit;}
+.menu-item:hover{background:rgba(212,160,23,.06);color:var(--gold);}
+.menu-item.active{background:rgba(212,160,23,.1);color:var(--gold-light);border-left-color:var(--gold);}
+.menu-item .ic{font-size:.9rem;width:18px;text-align:center;}
+.sb-foot{padding:.8rem;border-top:1px solid var(--bl);}
+.main{margin-left:230px;flex:1;min-height:100vh;display:flex;flex-direction:column;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--bl);padding:.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.pg-title{font-family:'Cinzel Decorative',serif;font-size:.85rem;color:var(--gold);}
+.panel{display:none;padding:1.5rem;animation:fin .3s ease;}
+.panel.active{display:block;}
+@keyframes fin{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem;margin-bottom:1.5rem;}
+.sc{background:var(--surface2);border:1px solid var(--bl);border-radius:12px;padding:1.2rem;}
+.sc .l{font-size:.68rem;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:.4rem;}
+.sc .v{font-family:'Cinzel Decorative',serif;font-size:1.7rem;color:var(--gold);}
+.sc .s{font-size:.72rem;color:var(--text3);margin-top:.2rem;}
+.card{background:var(--surface2);border:1px solid var(--bl);border-radius:14px;padding:1.4rem;margin-bottom:1.4rem;}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;padding-bottom:.8rem;border-bottom:1px solid var(--bl);}
+.card-title{font-size:.88rem;color:var(--gold);font-weight:600;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.fg{margin-bottom:.9rem;}
+.lbl{display:block;font-size:.75rem;color:var(--text2);margin-bottom:.3rem;}
+.inp,.sel,.ta{width:100%;padding:.6rem .85rem;background:var(--surface3);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:var(--text);font-family:'Noto Serif Bengali',serif;font-size:.83rem;outline:none;transition:border-color .2s;}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--gold);}
+.inp::placeholder,.ta::placeholder{color:var(--text3);}
+.ta{min-height:75px;resize:vertical;}
+.sel option{background:var(--surface3);}
+.btn{display:inline-flex;align-items:center;gap:.35rem;padding:.5rem 1.1rem;border-radius:8px;font-size:.8rem;cursor:pointer;border:none;font-family:'Noto Serif Bengali',serif;transition:all .2s;}
+.btn-gold{background:linear-gradient(135deg,var(--saffron),#7a5c10);color:#050505;font-weight:700;}
+.btn-gold:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(232,131,10,.3);}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--gold);}
+.btn-outline:hover{background:rgba(212,160,23,.1);}
+.btn-red{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);color:var(--red);}
+.btn-red:hover{background:rgba(231,76,60,.2);}
+.btn-green{background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.3);color:var(--green);}
+.btn-sm{padding:.3rem .65rem;font-size:.72rem;}
+.tbl{width:100%;border-collapse:collapse;font-size:.8rem;}
+.tbl th{background:rgba(212,160,23,.08);color:var(--gold);padding:.65rem .8rem;text-align:left;font-size:.7rem;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+.tbl td{padding:.6rem .8rem;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text2);vertical-align:middle;}
+.tbl tr:hover td{background:rgba(255,255,255,.02);}
+.upload-box{border:2px dashed var(--border);border-radius:10px;padding:1.2rem;text-align:center;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.01);}
+.upload-box:hover{border-color:var(--gold);background:rgba(212,160,23,.04);}
+.img-preview{max-width:130px;max-height:130px;border-radius:8px;margin-top:.7rem;object-fit:cover;border:1px solid var(--border);display:block;}
+.badge{display:inline-block;padding:.18rem .6rem;border-radius:20px;font-size:.68rem;font-weight:600;}
+.badge-gold{background:rgba(212,160,23,.12);color:var(--gold);border:1px solid var(--border);}
+.badge-green{background:rgba(46,204,113,.12);color:var(--green);border:1px solid rgba(46,204,113,.3);}
+.badge-red{background:rgba(231,76,60,.12);color:var(--red);border:1px solid rgba(231,76,60,.3);}
+.toast2{position:fixed;bottom:2rem;right:2rem;z-index:9999;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.75rem 1.2rem;font-size:.83rem;transform:translateY(100px);opacity:0;transition:all .3s;max-width:280px;}
+.toast2.show{transform:translateY(0);opacity:1;}
+.ampm-row{display:grid;grid-template-columns:1fr 70px;gap:.4rem;}
+@media(max-width:768px){.sidebar{width:0;overflow:hidden;}.main{margin-left:0;}.form-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo"><span class="om">ॐ</span><div class="t">মন্দির অ্যাডমিন</div></div>
+  <nav class="sb-menu">
+    <div class="sb-sec">ড্যাশবোর্ড</div>
+    <button class="menu-item active" onclick="show('dashboard')"><span class="ic">🏠</span> ড্যাশবোর্ড</button>
+    <div class="sb-sec">ওয়েবসাইট</div>
+    <button class="menu-item" onclick="show('settings')"><span class="ic">⚙️</span> সাধারণ সেটিং</button>
+    <button class="menu-item" onclick="show('sounds')"><span class="ic">🎵</span> মিউজিক ও সাউন্ড</button>
+    <button class="menu-item" onclick="show('timings')"><span class="ic">🕐</span> পূজার সময়</button>
+    <button class="menu-item" onclick="show('announcements')"><span class="ic">📢</span> হোম ঘোষণা</button>
+    <div class="sb-sec">ইভেন্ট</div>
+    <button class="menu-item" onclick="show('events')"><span class="ic">🎊</span> ইভেন্ট পরিচালনা</button>
+    <button class="menu-item" onclick="show('past-events')"><span class="ic">📸</span> পূর্ববর্তী অনুষ্ঠান</button>
+    <div class="sb-sec">পঞ্জিকা</div>
+    <button class="menu-item" onclick="show('ekadashi')"><span class="ic">🌙</span> একাদশী তালিকা</button>
+    <button class="menu-item" onclick="show('cal-notes')"><span class="ic">📅</span> ক্যালেন্ডার নোট</button>
+    <div class="sb-sec">তথ্য</div>
+    <button class="menu-item" onclick="show('committee')"><span class="ic">👥</span> কমিটি</button>
+    <button class="menu-item" onclick="show('organization')"><span class="ic">🏛</span> ছাত্রসংঘ</button>
+    <button class="menu-item" onclick="show('deities')"><span class="ic">🙏</span> দেব-দেবী</button>
+    <button class="menu-item" onclick="show('seva')"><span class="ic">🌸</span> সেবা অপশন</button>
+    <div class="sb-sec">রিপোর্ট</div>
+    <button class="menu-item" onclick="show('donations')"><span class="ic">💰</span> অনুদান তালিকা</button>
+    <button class="menu-item" onclick="show('opinions')"><span class="ic">💬</span> সদস্য মতামত</button>
+    <button class="menu-item" onclick="show('analytics')"><span class="ic">📊</span> ভিজিটর পরিসংখ্যান</button>
+    <div class="sb-sec">অ্যাকাউন্ট</div>
+    <button class="menu-item" onclick="show('admin-settings')"><span class="ic">🔐</span> পাসওয়ার্ড পরিবর্তন</button>
+  </nav>
+  <div class="sb-foot">
+    <button class="btn btn-outline" style="width:100%;margin-bottom:.4rem;font-size:.72rem" onclick="exportAll()">📥 ডেটা এক্সপোর্ট</button>
+    <button class="btn btn-outline" style="width:100%;margin-bottom:.5rem;font-size:.72rem" onclick="document.getElementById('imp-file').click()">📤 ডেটা ইম্পোর্ট</button>
+    <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importAll(this)">
+    <button style="width:100%;padding:.45rem;background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);color:var(--red);border-radius:8px;cursor:pointer;font-size:.75rem;font-family:'Noto Serif Bengali',serif;" onclick="doLogout()">🚪 লগআউট</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="pg-title" id="pg-title">ড্যাশবোর্ড</div>
+    <div style="display:flex;gap:.8rem;align-items:center">
+      <a href="../public/index.html" target="_blank" class="btn btn-outline" style="font-size:.75rem">🌐 সাইট দেখুন</a>
+      <span style="font-size:.72rem;color:var(--text3)" id="login-time"></span>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="panel active" id="panel-dashboard">
+    <div class="stat-cards" id="dash-stats"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.4rem">
+      <div class="card"><div class="card-hdr"><span class="card-title">📅 আসন্ন ইভেন্ট</span><button class="btn btn-sm btn-outline" onclick="show('events')">সব দেখুন</button></div><div id="dash-events"></div></div>
+      <div class="card"><div class="card-hdr"><span class="card-title">💰 সাম্প্রতিক অনুদান</span><button class="btn btn-sm btn-outline" onclick="show('donations')">সব দেখুন</button></div><div id="dash-donations"></div></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="panel" id="panel-settings">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">⚙️ সাইটের সাধারণ তথ্য</span><button class="btn btn-gold" onclick="saveSettings()">💾 সংরক্ষণ করুন</button></div>
+      <div class="form-row">
+        <div class="fg"><label class="lbl">মন্দিরের নাম (বাংলা) *</label><input class="inp" id="s-name"></div>
+        <div class="fg"><label class="lbl">মন্দিরের নাম (ইংরেজি)</label><input class="inp" id="s-name-en"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label class="lbl">ট্যাগলাইন</label><input class="inp" id="s-tagline"></div>
+        <div class="fg"><label class="lbl">প্রতিষ্ঠার বছর</label><input class="inp" id="s-established" placeholder="যেমন: 1975"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label class="lbl">ঠিকানা</label><input class="inp" id="s-address"></div>
+        <div class="fg"><label class="lbl">মোবাইল নম্বর</label><input class="inp" id="s-phone"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label class="lbl">ইমেইল</label><input class="inp" id="s-email"></div>
+        <div class="fg"><label class="lbl">Ticker লেখা</label><input class="inp" id="s-ticker"></div>
+      </div>
+      <div class="fg">
+        <label class="lbl">লোগো (ক্লিক করে আপলোড)</label>
+        <div class="upload-box" onclick="document.getElementById('logo-up').click()">
+          <input type="file" id="logo-up" accept="image/*" style="display:none" onchange="handleLogo(this)">
+          <div id="logo-preview"><div style="font-size:2rem;color:var(--text3)">🏛</div><p style="font-size:.72rem;color:var(--text3);margin-top:.3rem">লোগো আপলোড করুন</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOUNDS & MUSIC -->
+  <div class="panel" id="panel-sounds">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">🎵 ব্যাকগ্রাউন্ড মিউজিক</span></div>
+      <p style="font-size:.8rem;color:var(--text3);margin-bottom:1rem">Admin এখানে মিউজিক upload করলে সেটা website-এ বাজবে। না করলে default synthesized মিউজিক বাজবে।</p>
+      <div class="form-row">
+        <div class="fg">
+          <label class="lbl">🎵 ব্যাকগ্রাউন্ড মিউজিক (MP3/OGG)</label>
+          <div class="upload-box" onclick="document.getElementById('bgm-up').click()">
+            <input type="file" id="bgm-up" accept="audio/*" style="display:none" onchange="handleBgm(this)">
+            <div id="bgm-preview"><div style="font-size:1.8rem;color:var(--text3)">🎵</div><p style="font-size:.7rem;color:var(--text3);margin-top:.3rem">MP3 আপলোড করুন</p></div>
+          </div>
+          <button class="btn btn-red btn-sm" style="margin-top:.5rem" onclick="clearBgm()">✕ মিউজিক সরান</button>
+        </div>
+        <div class="fg">
+          <label class="lbl">🔔 কাস্টম ঘণ্টার শব্দ (MP3)</label>
+          <div class="upload-box" onclick="document.getElementById('bell-up').click()">
+            <input type="file" id="bell-up" accept="audio/*" style="display:none" onchange="handleSound(this,'bell_sound','bell-preview')">
+            <div id="bell-preview"><div style="font-size:1.8rem;color:var(--text3)">🔔</div><p style="font-size:.7rem;color:var(--text3);margin-top:.3rem">ঘণ্টার শব্দ আপলোড করুন</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fg">
+          <label class="lbl">🐚 কাস্টম শঙ্খের শব্দ (MP3)</label>
+          <div class="upload-box" onclick="document.getElementById('conch-up').click()">
+            <input type="file" id="conch-up" accept="audio/*" style="display:none" onchange="handleSound(this,'conch_sound','conch-preview')">
+            <div id="conch-preview"><div style="font-size:1.8rem;color:var(--text3)">🐚</div><p style="font-size:.7rem;color:var(--text3);margin-top:.3rem">শঙ্খের শব্দ আপলোড করুন</p></div>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="lbl">🖨 কমিটি লিস্ট প্রিন্ট টেমপ্লেট (ছবি)</label>
+          <div class="upload-box" onclick="document.getElementById('tmpl-up').click()">
+            <input type="file" id="tmpl-up" accept="image/*" style="display:none" onchange="handleTemplate(this)">
+            <div id="tmpl-preview"><div style="font-size:1.8rem;color:var(--text3)">🖼</div><p style="font-size:.7rem;color:var(--text3);margin-top:.3rem">টেমপ্লেট ছবি আপলোড করুন</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMINGS -->
+  <div class="panel" id="panel-timings">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">🕐 পূজার সময়সূচি</span><button class="btn btn-gold" onclick="addTiming()">+ নতুন সময় যোগ করুন</button></div>
+      <p style="font-size:.75rem;color:var(--text3);margin-bottom:1rem">সময় লিখুন: যেমন 5:00, তারপর AM/PM সিলেক্ট করুন</p>
+      <div id="timings-list"></div>
+      <button class="btn btn-gold" style="margin-top:.8rem" onclick="saveTimings()">💾 সংরক্ষণ করুন</button>
+    </div>
+  </div>
+
+  <!-- ANNOUNCEMENTS -->
+  <div class="panel" id="panel-announcements">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">📢 হোম পেজের ঘোষণা (সর্বোচ্চ ৪টি)</span><button class="btn btn-gold" onclick="addAnn()">+ নতুন ঘোষণা</button></div>
+      <p style="font-size:.78rem;color:var(--text3);margin-bottom:1rem">ঘোষণাগুলো হোম পেজে ৫ সেকেন্ড পর পর পরিবর্তন হবে।</p>
+      <div id="ann-list"></div>
+      <button class="btn btn-gold" style="margin-top:.8rem" onclick="saveAnns()">💾 সংরক্ষণ করুন</button>
+    </div>
+  </div>
+
+  <!-- EVENTS -->
+  <div class="panel" id="panel-events">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">🎊 নতুন ইভেন্ট যোগ / সম্পাদনা করুন</span></div>
+      <input type="hidden" id="ev-edit-id">
+      <div class="form-row">
+        <div class="fg"><label class="lbl">ইভেন্টের শিরোনাম *</label><input class="inp" id="ev-title" placeholder="উৎসবের নাম"></div>
+        <div class="fg"><label class="lbl">ট্যাগ</label><input class="inp" id="ev-tag" placeholder="বিশেষ পূজা, মহোৎসব..."></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label class="lbl">শুরুর তারিখ *</label><input class="inp" type="date" id="ev-date"></div>
+        <div class="fg"><label class="lbl">শেষের তারিখ</label><input class="inp" type="date" id="ev-end-date"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label class="lbl">শুরুর সময় ও AM/PM</label><div class="ampm-row"><input class="inp" id="ev-time" placeholder="6:00"><select class="sel" id="ev-ampm"><option value="AM">AM</option><option value="PM">PM</option></select></div></div>
+        <div class="fg"><label class="lbl">শেষের সময় ও AM/PM</label><div class="ampm-row"><input class="inp" id="ev-end-time" placeholder="9:00"><select class="sel" id="ev-end-ampm"><option value="AM">AM</option><option value="PM">PM</option></select></div></div>
+      </div>
+      <div class="fg"><label class="lbl">বিস্তারিত বিবরণ *</label><textarea class="ta" id="ev-desc" placeholder="ইভেন্টের বিস্তারিত..."></textarea></div>
+      <div class="form-row">
+        <div class="fg"><label class="lbl">💛 অনুদান সক্রিয়?</label><select class="sel" id="ev-don-en"><option value="true">হ্যাঁ — বোতাম দেখাবে</option><option value="false">না</option></select></div>
+        <div class="fg"><label class="lbl">অনুদানের শিরোনাম</label><input class="inp" id="ev-don-title" placeholder="এই উৎসবে অনুদান করুন"></div>
+      </div>
+      <div class="fg">
+        <label class="lbl">🖼 থিম ছবি (১ম ছবি = হিরো ইমেজ, বাকিগুলো গ্যালারিতে যাবে)</label>
+        <div class="upload-box" onclick="document.getElementById('ev-imgs').click()">
+          <input type="file" id="ev-imgs" accept="image/*" multiple style="display:none" onchange="handleEvImgs(this)">
+          <div id="ev-imgs-preview"><div style="font-size:1.8rem;color:var(--text3)">🖼</div><p style="font-size:.72rem;color:var(--text3);margin-top:.3rem">একাধিক ছবি একসাথে আপলোড করুন</p></div>
+        </div>
+        <div id="ev-imgs-row" style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem"></div>
+      </div>
+      <button class="btn btn-gold" onclick="saveEvent()" id="ev-save-btn">+ ইভেন্ট যোগ করুন</button>
+      <button class="btn btn-outline" onclick="cancelEditEvent()" id="ev-cancel-btn" style="display:none;margin-left:.5rem">বাতিল</button>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">📋 আসন্ন ইভেন্ট তালিকা</span></div>
+      <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>শিরোনাম</th><th>তারিখ</th><th>সময়</th><th>ট্যাগ</th><th>অ্যাকশন</th></tr></thead><tbody id="ev-tbody"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- PAST EVENTS -->
+  <div class="panel" id="panel-past-events">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">📸 পূর্ববর্তী অনুষ্ঠান</span></div>
+      <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>শিরোনাম</th><th>তারিখ</th><th>ছবি</th><th>অ্যাকশন</th></tr></thead><tbody id="past-ev-tbody"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- EKADASHI -->
+  <div class="panel" id="panel-ekadashi">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">🌙 একাদশী তালিকা সম্পাদনা</span>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn btn-gold" onclick="addEka()">+ নতুন একাদশী</button>
+          <button class="btn btn-outline" onclick="saveEka()">💾 সংরক্ষণ</button>
+          <button class="btn btn-red btn-sm" onclick="resetEka()">↺ ডিফল্ট</button>
+        </div>
+      </div>
+      <p style="font-size:.75rem;color:var(--text3);margin-bottom:1rem">পারণের সময় স্বয়ংক্রিয়ভাবে পরের দিন দেখানো হয়।</p>
+      <div id="eka-list"></div>
+    </div>
+  </div>
+
+  <!-- CALENDAR NOTES -->
+  <div class="panel" id="panel-cal-notes">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">📅 ক্যালেন্ডারে বিশেষ নোট যোগ করুন</span>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn btn-gold" onclick="addCalNote()">+ নোট যোগ করুন</button>
+          <button class="btn btn-outline" onclick="saveCalNotes()">💾 সংরক্ষণ</button>
+        </div>
+      </div>
+      <div id="cal-notes-list"></div>
+    </div>
+  </div>
+
+  <!-- COMMITTEE -->
+  <div class="panel" id="panel-committee">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">👥 নতুন সদস্য যোগ করুন</span></div>
+      <div class="form-row">
+        <div class="fg"><label class="lbl">নাম *</label><input class="inp" id="cm-name" placeholder="সম্পূর্ণ নাম"></div>
+        <div class="fg"><label class="lbl">পদবি *</label><input class="inp" id="cm-role" placeholder="সভাপতি, সম্পাদক..."></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label class="lbl">মোবাইল</label><input class="inp" id="cm-phone" placeholder="+880..."></div>
+        <div class="fg"><label class="lbl">Facebook লিঙ্ক</label><input class="inp" id="cm-fb" placeholder="https://facebook.com/..."></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label class="lbl">Bio (সংক্ষিপ্ত পরিচয়)</label><textarea class="ta" id="cm-bio" style="min-height:55px" placeholder="সদস্যের পরিচয়..."></textarea></div>
+        <div class="fg"><label class="lbl">ক্রম নম্বর</label><input class="inp" type="number" id="cm-order" placeholder="1, 2, 3..."></div>
+      </div>
+      <div class="fg">
+        <label class="lbl">ছবি</label>
+        <div class="upload-box" onclick="document.getElementById('cm-img').click()">
+          <input type="file" id="cm-img" accept="image/*" style="display:none" onchange="handleCmImg(this)">
+          <div id="cm-img-prev"><div style="font-size:1.8rem;color:var(--text3)">👤</div><p style="font-size:.72rem;color:var(--text3);margin-top:.3rem">ছবি আপলোড করুন</p></div>
+        </div>
+      </div>
+      <button class="btn btn-gold" onclick="addMember()">+ সদস্য যোগ করুন</button>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">📋 সদস্য তালিকা</span></div>
+      <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>নাম</th><th>পদবি</th><th>ফোন</th><th>অ্যাকশন</th></tr></thead><tbody id="cm-tbody"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- ORGANIZATION -->
+  <div class="panel" id="panel-organization">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">🏛 ছাত্রসংঘ / সংগঠনের তথ্য</span><button class="btn btn-gold" onclick="saveOrg()">💾 সংরক্ষণ করুন</button></div>
+      <div class="form-row">
+        <div class="fg"><label class="lbl">সংগঠনের নাম</label><input class="inp" id="org-name" placeholder="ছাত্রসংঘ"></div>
+        <div class="fg"><label class="lbl">প্রতিষ্ঠার বছর</label><input class="inp" id="org-founded"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label class="lbl">Facebook পেজ লিঙ্ক</label><input class="inp" id="org-fb" placeholder="https://facebook.com/..."></div>
+        <div class="fg"><label class="lbl">ওয়েবসাইট লিঙ্ক</label><input class="inp" id="org-website" placeholder="https://..."></div>
+      </div>
+      <div class="form-row">
+        <div class="fg">
+          <label class="lbl">লোগো</label>
+          <div class="upload-box" onclick="document.getElementById('org-logo').click()">
+            <input type="file" id="org-logo" accept="image/*" style="display:none" onchange="handleOrgLogo(this)">
+            <div id="org-logo-prev"><div style="font-size:1.5rem;color:var(--text3)">🏛</div></div>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="lbl">কভার ছবি</label>
+          <div class="upload-box" onclick="document.getElementById('org-cover').click()">
+            <input type="file" id="org-cover" accept="image/*" style="display:none" onchange="handleOrgCover(this)">
+            <div id="org-cover-prev"><div style="font-size:1.5rem;color:var(--text3)">🖼</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label class="lbl">মোট সদস্য</label><input class="inp" id="org-members"></div>
+        <div class="fg"><label class="lbl">স্বেচ্ছাসেবী</label><input class="inp" id="org-volunteers"></div>
+        <div class="fg"><label class="lbl">বার্ষিক অনুষ্ঠান</label><input class="inp" id="org-programs"></div>
+      </div>
+      <div class="fg"><label class="lbl">ইতিহাস</label><textarea class="ta" id="org-history" style="min-height:90px"></textarea></div>
+      <div class="form-row">
+        <div class="fg"><label class="lbl">মিশন</label><textarea class="ta" id="org-mission"></textarea></div>
+        <div class="fg"><label class="lbl">ভিশন</label><textarea class="ta" id="org-vision"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEITIES -->
+  <div class="panel" id="panel-deities"><div class="card"><div class="card-hdr"><span class="card-title">🙏 দেব-দেবীর তথ্য</span></div><div id="deities-list"></div></div></div>
+
+  <!-- SEVA -->
+  <div class="panel" id="panel-seva"><div class="card"><div class="card-hdr"><span class="card-title">🌸 সেবা অপশন</span><button class="btn btn-gold" onclick="addSeva()">+ নতুন সেবা</button></div><div id="seva-list"></div><button class="btn btn-gold" style="margin-top:.8rem" onclick="saveSeva()">💾 সংরক্ষণ</button></div></div>
+
+  <!-- DONATIONS -->
+  <div class="panel" id="panel-donations">
+    <div class="stat-cards" id="don-stats"></div>
+    <div class="card"><div class="card-hdr"><span class="card-title">💰 অনুদান তালিকা</span><div style="display:flex;gap:.4rem"><button class="btn btn-sm btn-outline" onclick="exportDons()">📥 CSV</button><button class="btn btn-sm btn-red" onclick="if(confirm('সব মুছবে?'))clearDons()">🗑</button></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>#</th><th>নাম</th><th>ফোন</th><th>পরিমাণ</th><th>সেবা</th><th>পেমেন্ট</th><th>তারিখ</th></tr></thead><tbody id="don-tbody"></tbody></table></div></div>
+  </div>
+
+  <!-- OPINIONS -->
+  <div class="panel" id="panel-opinions">
+    <div class="card"><div class="card-hdr"><span class="card-title">💬 সদস্য মতামত</span><span id="op-count" style="font-size:.75rem;color:var(--text3)"></span></div><div id="op-list"></div></div>
+  </div>
+
+  <!-- ANALYTICS -->
+  <div class="panel" id="panel-analytics">
+    <div class="stat-cards" id="ana-stats"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.4rem">
+      <div class="card"><div class="card-hdr"><span class="card-title">📅 মাসিক ভিজিটর</span></div><div id="ana-monthly" style="max-height:280px;overflow-y:auto"></div></div>
+      <div class="card"><div class="card-hdr"><span class="card-title">📆 বার্ষিক রিপোর্ট</span></div><div id="ana-annual"></div></div>
+    </div>
+    <div class="card" style="margin-top:1.4rem"><div class="card-hdr"><span class="card-title">📊 সাম্প্রতিক দৈনিক ভিজিটর (শেষ ৩০ দিন)</span></div><div id="ana-daily" style="max-height:240px;overflow-y:auto"></div></div>
+  </div>
+
+  <!-- ADMIN SETTINGS -->
+  <div class="panel" id="panel-admin-settings">
+    <div class="card" style="max-width:450px">
+      <div class="card-hdr"><span class="card-title">🔐 পাসওয়ার্ড পরিবর্তন</span></div>
+      <div class="fg"><label class="lbl">ব্যবহারকারীর নাম</label><input class="inp" id="new-uname"></div>
+      <div class="fg"><label class="lbl">নতুন পাসওয়ার্ড</label><input class="inp" type="password" id="new-pass"></div>
+      <div class="fg"><label class="lbl">পাসওয়ার্ড নিশ্চিত করুন</label><input class="inp" type="password" id="conf-pass"></div>
+      <button class="btn btn-gold" onclick="changePass()">✅ পরিবর্তন করুন</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast2" id="toast2"></div>
+
+<script src="../database/db.js"></script>
+<script>
+// ===== PANEL SYSTEM =====
+const TITLES={dashboard:'ড্যাশবোর্ড',settings:'সাধারণ সেটিং',sounds:'মিউজিক ও সাউন্ড',timings:'পূজার সময়',announcements:'হোম ঘোষণা',events:'ইভেন্ট পরিচালনা','past-events':'পূর্ববর্তী অনুষ্ঠান',ekadashi:'একাদশী তালিকা','cal-notes':'ক্যালেন্ডার নোট',committee:'কমিটি',organization:'ছাত্রসংঘ',deities:'দেব-দেবী',seva:'সেবা অপশন',donations:'অনুদান তালিকা',opinions:'সদস্য মতামত',analytics:'ভিজিটর পরিসংখ্যান','admin-settings':'পাসওয়ার্ড পরিবর্তন'};
+const LOADERS={dashboard:loadDash,settings:loadSettings,sounds:loadSounds,timings:loadTimings,announcements:loadAnns,events:loadEvents,'past-events':loadPastEvents,ekadashi:loadEka,'cal-notes':loadCalNotes,committee:loadCommittee,organization:loadOrg,deities:loadDeities,seva:loadSeva,donations:loadDons,opinions:loadOpinions,analytics:loadAnalytics};
+
+function show(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.menu-item').forEach(m=>m.classList.remove('active'));
+  const panel=document.getElementById('panel-'+id);
+  if(panel)panel.classList.add('active');
+  document.querySelectorAll('.menu-item').forEach(m=>{if(m.getAttribute('onclick')&&m.getAttribute('onclick').includes(`'${id}'`))m.classList.add('active');});
+  document.getElementById('pg-title').textContent=TITLES[id]||id;
+  if(LOADERS[id])LOADERS[id]();
+}
+
+function toast(msg,type='success'){
+  const t=document.getElementById('toast2');t.textContent=msg;t.className='toast2 show';
+  if(type==='error')t.style.borderColor='rgba(231,76,60,.5)';else t.style.borderColor='var(--border)';
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ===== DASHBOARD =====
+function loadDash(){
+  DB.checkEventStatus();const db=DB.get();
+  const totalDon=(db.donations||[]).reduce((s,d)=>s+parseFloat(d.amount||0),0);
+  const vs=DB.getVisitorStats();
+  document.getElementById('dash-stats').innerHTML=`
+    <div class="sc"><div class="l">মোট অনুদান</div><div class="v">৳${totalDon.toLocaleString()}</div><div class="s">${(db.donations||[]).length} টি লেনদেন</div></div>
+    <div class="sc"><div class="l">আসন্ন ইভেন্ট</div><div class="v">${(db.events||[]).length}</div></div>
+    <div class="sc"><div class="l">কমিটি সদস্য</div><div class="v">${(db.committee||[]).length}</div></div>
+    <div class="sc"><div class="l">আজকের ভিজিটর</div><div class="v">${vs.todayCount||0}</div></div>`;
+  document.getElementById('dash-events').innerHTML=(db.events||[]).slice(0,4).map(e=>`<div style="padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.8rem"><span style="color:var(--gold)">${e.title}</span><br><span style="color:var(--text3);font-size:.73rem">${e.date} — ${e.time||''} ${e.ampm||''}</span></div>`).join('')||'<p style="color:var(--text3);font-size:.8rem;padding:1rem 0">কোনো ইভেন্ট নেই।</p>';
+  document.getElementById('dash-donations').innerHTML=(db.donations||[]).slice(0,5).map(d=>`<div style="padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.8rem;display:flex;justify-content:space-between"><span style="color:var(--gold)">${d.name}</span><span>৳${parseFloat(d.amount).toLocaleString()}</span></div>`).join('')||'<p style="color:var(--text3);font-size:.8rem;padding:1rem 0">কোনো অনুদান নেই।</p>';
+}
+
+// ===== SETTINGS =====
+let logoB64=null;
+function loadSettings(){
+  const s=DB.get('settings');
+  document.getElementById('s-name').value=s.mandir_name||'';
+  document.getElementById('s-name-en').value=s.mandir_name_en||'';
+  document.getElementById('s-tagline').value=s.tagline||'';
+  document.getElementById('s-established').value=s.established||'';
+  document.getElementById('s-address').value=s.address||'';
+  document.getElementById('s-phone').value=s.phone||'';
+  document.getElementById('s-email').value=s.email||'';
+  document.getElementById('s-ticker').value=s.ticker_text||'';
+  if(s.logo){logoB64=s.logo;document.getElementById('logo-preview').innerHTML=`<img src="${s.logo}" class="img-preview">`;}
+}
+function handleLogo(input){if(!input.files[0])return;const r=new FileReader();r.onload=e=>{logoB64=e.target.result;document.getElementById('logo-preview').innerHTML=`<img src="${logoB64}" class="img-preview">`;};r.readAsDataURL(input.files[0]);}
+function saveSettings(){
+  const s=DB.get('settings');
+  s.mandir_name=document.getElementById('s-name').value;
+  s.mandir_name_en=document.getElementById('s-name-en').value;
+  s.tagline=document.getElementById('s-tagline').value;
+  s.established=document.getElementById('s-established').value;
+  s.address=document.getElementById('s-address').value;
+  s.phone=document.getElementById('s-phone').value;
+  s.email=document.getElementById('s-email').value;
+  s.ticker_text=document.getElementById('s-ticker').value;
+  if(logoB64)s.logo=logoB64;
+  DB.set('settings',s);toast('✅ সেটিং সংরক্ষণ হয়েছে!');
+}
+
+// ===== SOUNDS =====
+function loadSounds(){
+  const s=DB.get('settings');
+  if(s.bg_music&&s.bg_music_name)document.getElementById('bgm-preview').innerHTML=`<div style="font-size:1.5rem">🎵</div><p style="font-size:.7rem;color:var(--green);margin-top:.3rem">✅ ${s.bg_music_name}</p>`;
+  if(s.bell_sound)document.getElementById('bell-preview').innerHTML=`<div style="font-size:1.5rem">🔔</div><p style="font-size:.7rem;color:var(--green);margin-top:.3rem">✅ আপলোড আছে</p>`;
+  if(s.conch_sound)document.getElementById('conch-preview').innerHTML=`<div style="font-size:1.5rem">🐚</div><p style="font-size:.7rem;color:var(--green);margin-top:.3rem">✅ আপলোড আছে</p>`;
+  if(s.committee_template)document.getElementById('tmpl-preview').innerHTML=`<img src="${s.committee_template}" class="img-preview"><p style="font-size:.68rem;color:var(--green);margin-top:.3rem">✅ টেমপ্লেট আছে</p>`;
+}
+function handleBgm(input){if(!input.files[0])return;const r=new FileReader();r.onload=e=>{const s=DB.get('settings');s.bg_music=e.target.result;s.bg_music_name=input.files[0].name;DB.set('settings',s);document.getElementById('bgm-preview').innerHTML=`<div style="font-size:1.5rem">🎵</div><p style="font-size:.7rem;color:var(--green);margin-top:.3rem">✅ ${input.files[0].name}</p>`;toast('✅ মিউজিক আপলোড হয়েছে!');};r.readAsDataURL(input.files[0]);}
+function clearBgm(){const s=DB.get('settings');s.bg_music=null;s.bg_music_name=null;DB.set('settings',s);document.getElementById('bgm-preview').innerHTML='<div style="font-size:1.8rem;color:var(--text3)">🎵</div><p style="font-size:.7rem;color:var(--text3);margin-top:.3rem">MP3 আপলোড করুন</p>';toast('↺ মিউজিক সরানো হয়েছে।');}
+function handleSound(input,key,prevId){if(!input.files[0])return;const r=new FileReader();r.onload=e=>{const s=DB.get('settings');s[key]=e.target.result;DB.set('settings',s);const em=key==='bell_sound'?'🔔':'🐚';document.getElementById(prevId).innerHTML=`<div style="font-size:1.5rem">${em}</div><p style="font-size:.7rem;color:var(--green);margin-top:.3rem">✅ আপলোড হয়েছে</p>`;toast('✅ শব্দ আপলোড হয়েছে!');};r.readAsDataURL(input.files[0]);}
+function handleTemplate(input){if(!input.files[0])return;const r=new FileReader();r.onload=e=>{const s=DB.get('settings');s.committee_template=e.target.result;DB.set('settings',s);document.getElementById('tmpl-preview').innerHTML=`<img src="${e.target.result}" class="img-preview"><p style="font-size:.68rem;color:var(--green);margin-top:.3rem">✅ টেমপ্লেট আপলোড হয়েছে</p>`;toast('✅ টেমপ্লেট আপলোড হয়েছে!');};r.readAsDataURL(input.files[0]);}
+
+// ===== TIMINGS =====
+function loadTimings(){renderTimings(DB.get('timings')||[]);}
+function renderTimings(list){
+  document.getElementById('timings-list').innerHTML=list.map((t,i)=>`
+    <div style="display:grid;grid-template-columns:45px 2fr 90px 60px 2fr auto;gap:.5rem;margin-bottom:.5rem;align-items:center">
+      <input class="inp" value="${t.icon||'🙏'}" id="ti-ic-${i}" style="text-align:center;padding:.5rem .3rem">
+      <input class="inp" value="${t.name||''}" id="ti-nm-${i}" placeholder="আরতির নাম">
+      <input class="inp" value="${t.time||''}" id="ti-tm-${i}" placeholder="5:00">
+      <select class="sel" id="ti-ap-${i}"><option value="AM" ${(t.ampm||'AM')==='AM'?'selected':''}>AM</option><option value="PM" ${(t.ampm||'AM')==='PM'?'selected':''}>PM</option></select>
+      <input class="inp" value="${t.days||''}" id="ti-dy-${i}" placeholder="প্রতিদিন">
+      <button class="btn btn-sm btn-red" onclick="removeTiming(${i})">✕</button>
+    </div>`).join('');
+}
+function addTiming(){const t=DB.get('timings')||[];t.push({id:Date.now(),icon:'🙏',name:'',time:'',ampm:'AM',days:'প্রতিদিন'});renderTimings(t);}
+function removeTiming(i){const rows=document.getElementById('timings-list').children;if(rows[i])rows[i].remove();}
+function saveTimings(){
+  const rows=document.getElementById('timings-list').children;
+  const list=Array.from(rows).map((_,i)=>({id:i+1,icon:document.getElementById(`ti-ic-${i}`)?.value||'🙏',name:document.getElementById(`ti-nm-${i}`)?.value||'',time:document.getElementById(`ti-tm-${i}`)?.value||'',ampm:document.getElementById(`ti-ap-${i}`)?.value||'AM',days:document.getElementById(`ti-dy-${i}`)?.value||''}));
+  DB.set('timings',list);toast('✅ পূজার সময় সংরক্ষিত!');
+}
+
+// ===== ANNOUNCEMENTS =====
+function loadAnns(){renderAnns(DB.get('settings').hero_announcements||[]);}
+function renderAnns(list){
+  document.getElementById('ann-list').innerHTML=list.map((a,i)=>`
+    <div style="display:grid;grid-template-columns:1fr 1fr 80px auto;gap:.5rem;margin-bottom:.5rem;align-items:center">
+      <input class="inp" value="${a.text||''}" id="ann-t-${i}" placeholder="ঘোষণার লেখা">
+      <input class="inp" value="${a.link||''}" id="ann-l-${i}" placeholder="লিঙ্ক (ঐচ্ছিক)">
+      <select class="sel" id="ann-a-${i}"><option value="true" ${a.active?'selected':''}>সক্রিয়</option><option value="false" ${!a.active?'selected':''}>বন্ধ</option></select>
+      <button class="btn btn-sm btn-red" onclick="this.parentElement.remove()">✕</button>
+    </div>`).join('')||'<p style="color:var(--text3);font-size:.8rem">কোনো ঘোষণা নেই।</p>';
+}
+function addAnn(){const s=DB.get('settings');const a=s.hero_announcements||[];if(a.length>=4){toast('সর্বোচ্চ ৪টি ঘোষণা।','error');return;}renderAnns([...a,{text:'',link:'',active:true}]);}
+function saveAnns(){
+  const rows=document.querySelectorAll('#ann-list > div');
+  const list=Array.from(rows).map((_,i)=>({text:document.getElementById(`ann-t-${i}`)?.value||'',link:document.getElementById(`ann-l-${i}`)?.value||'',active:document.getElementById(`ann-a-${i}`)?.value==='true'})).filter(a=>a.text);
+  const s=DB.get('settings');s.hero_announcements=list;DB.set('settings',s);toast('✅ ঘোষণা সংরক্ষিত!');
+}
+
+// ===== EVENTS =====
+let evImgs=[];
+function handleEvImgs(input){
+  if(!input.files||!input.files.length)return;evImgs=[];const row=document.getElementById('ev-imgs-row');row.innerHTML='';let loaded=0;
+  Array.from(input.files).forEach((f,idx)=>{const r=new FileReader();r.onload=e=>{evImgs.push(e.target.result);const img=document.createElement('img');img.src=e.target.result;img.style.cssText='width:55px;height:55px;object-fit:cover;border-radius:6px;border:1px solid var(--border)';row.appendChild(img);if(idx===0)document.getElementById('ev-imgs-preview').innerHTML=`<div style="font-size:1.5rem">🖼</div><p style="font-size:.7rem;color:var(--green);margin-top:.3rem">${input.files.length} টি ছবি নির্বাচিত</p>`;loaded++;};r.readAsDataURL(f);});
+}
+function saveEvent(){
+  const id=document.getElementById('ev-edit-id').value;
+  const title=document.getElementById('ev-title').value.trim();
+  const date=document.getElementById('ev-date').value;
+  const desc=document.getElementById('ev-desc').value.trim();
+  if(!title||!date||!desc){toast('শিরোনাম, তারিখ ও বিবরণ আবশ্যক','error');return;}
+  const ev={id:id?parseInt(id):Date.now(),title,date,end_date:document.getElementById('ev-end-date').value||date,time:document.getElementById('ev-time').value||'',ampm:document.getElementById('ev-ampm').value||'AM',end_time:document.getElementById('ev-end-time').value||'',end_ampm:document.getElementById('ev-end-ampm').value||'PM',description:desc,tag:document.getElementById('ev-tag').value||'অনুষ্ঠান',theme_image:evImgs.length>0?evImgs[0]:null,photos:evImgs.length>1?evImgs.slice(1).map(u=>({url:u})):[],donation_enabled:document.getElementById('ev-don-en').value!=='false',donation_title:document.getElementById('ev-don-title').value||title+' উপলক্ষে অনুদান',status:'upcoming'};
+  const db=DB.get();
+  if(id){db.events=(db.events||[]).map(e=>e.id===parseInt(id)?ev:e);}
+  else{db.events=db.events||[];db.events.push(ev);}
+  localStorage.setItem('mandir_db',JSON.stringify(db));
+  resetEvForm();loadEvents();toast('✅ ইভেন্ট সংরক্ষিত!');
+}
+function resetEvForm(){['ev-title','ev-date','ev-end-date','ev-time','ev-end-time','ev-desc','ev-tag','ev-don-title'].forEach(id=>document.getElementById(id).value='');document.getElementById('ev-edit-id').value='';document.getElementById('ev-ampm').value='AM';document.getElementById('ev-end-ampm').value='PM';document.getElementById('ev-don-en').value='true';evImgs=[];document.getElementById('ev-imgs-preview').innerHTML='<div style="font-size:1.8rem;color:var(--text3)">🖼</div><p style="font-size:.72rem;color:var(--text3);margin-top:.3rem">একাধিক ছবি একসাথে আপলোড করুন</p>';document.getElementById('ev-imgs-row').innerHTML='';document.getElementById('ev-save-btn').textContent='+ ইভেন্ট যোগ করুন';document.getElementById('ev-cancel-btn').style.display='none';}
+function cancelEditEvent(){resetEvForm();}
+function editEvent(id){const ev=(DB.get('events')||[]).find(e=>e.id===id);if(!ev)return;document.getElementById('ev-edit-id').value=id;document.getElementById('ev-title').value=ev.title||'';document.getElementById('ev-date').value=ev.date||'';document.getElementById('ev-end-date').value=ev.end_date||'';document.getElementById('ev-time').value=ev.time||'';document.getElementById('ev-ampm').value=ev.ampm||'AM';document.getElementById('ev-end-time').value=ev.end_time||'';document.getElementById('ev-end-ampm').value=ev.end_ampm||'PM';document.getElementById('ev-desc').value=ev.description||'';document.getElementById('ev-tag').value=ev.tag||'';document.getElementById('ev-don-en').value=ev.donation_enabled?'true':'false';document.getElementById('ev-don-title').value=ev.donation_title||'';document.getElementById('ev-save-btn').textContent='💾 আপডেট করুন';document.getElementById('ev-cancel-btn').style.display='inline-flex';window.scrollTo(0,0);}
+function deleteEvent(id){if(!confirm('এই ইভেন্ট মুছবেন?'))return;const db=DB.get();db.events=(db.events||[]).filter(e=>e.id!==id);localStorage.setItem('mandir_db',JSON.stringify(db));loadEvents();toast('🗑 মুছে গেছে');}
+function loadEvents(){DB.checkEventStatus();const evs=DB.get('events')||[];document.getElementById('ev-tbody').innerHTML=evs.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(ev=>`<tr><td style="color:var(--gold)">${ev.title}</td><td>${ev.date}</td><td>${ev.time||''} ${ev.ampm||''}</td><td><span class="badge badge-gold">${ev.tag}</span></td><td><div style="display:flex;gap:.3rem;flex-wrap:wrap"><a href="../public/event.html?id=${ev.id}" target="_blank" class="btn btn-sm btn-outline">👁</a><button class="btn btn-sm btn-green" onclick="editEvent(${ev.id})">✏</button><button class="btn btn-sm btn-red" onclick="deleteEvent(${ev.id})">✕</button></div></td></tr>`).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:1.5rem">কোনো ইভেন্ট নেই</td></tr>';}
+
+// ===== PAST EVENTS =====
+function loadPastEvents(){const past=DB.get('past_events')||[];document.getElementById('past-ev-tbody').innerHTML=past.map(ev=>`<tr><td style="color:var(--gold)">${ev.title}</td><td>${ev.date}</td><td>${(ev.photos||ev.images||[]).length} টি</td><td><div style="display:flex;gap:.3rem"><button class="btn btn-sm btn-outline" onclick="addPastImgs(${ev.id})">📸 ছবি যোগ</button><button class="btn btn-sm btn-red" onclick="deletePastEv(${ev.id})">✕</button></div></td></tr>`).join('')||'<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:1.5rem">কোনো পূর্ববর্তী অনুষ্ঠান নেই</td></tr>';}
+function addPastImgs(id){const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.multiple=true;inp.onchange=()=>{const files=Array.from(inp.files);Promise.all(files.map(f=>new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(f);}))).then(imgs=>{const db=DB.get();const ev=(db.past_events||[]).find(e=>e.id===id);if(ev){ev.photos=[...(ev.photos||ev.images||[]),...imgs.map(u=>({url:u}))];localStorage.setItem('mandir_db',JSON.stringify(db));toast(`✅ ${imgs.length} টি ছবি যোগ হয়েছে!`);loadPastEvents();}});};inp.click();}
+function deletePastEv(id){if(!confirm('মুছবেন?'))return;const db=DB.get();db.past_events=(db.past_events||[]).filter(e=>e.id!==id);localStorage.setItem('mandir_db',JSON.stringify(db));loadPastEvents();toast('🗑 মুছে গেছে');}
+
+// ===== EKADASHI =====
+function loadEka(){const stored=DB.get('ekadashi')||[];renderEka(stored.length>0?stored:window.EKA_DEFAULT||[]);}
+function renderEka(list){document.getElementById('eka-list').innerHTML=list.map((e,i)=>`<div style="display:grid;grid-template-columns:1fr 2fr 1fr 1fr auto;gap:.45rem;margin-bottom:.45rem;align-items:center" id="eka-r-${i}"><input class="inp" type="date" value="${e.date||''}" id="ek-d-${i}"><input class="inp" value="${e.name||''}" id="ek-n-${i}" placeholder="একাদশীর নাম"><select class="sel" id="ek-p-${i}"><option value="কৃষ্ণপক্ষ" ${e.paksha==='কৃষ্ণপক্ষ'?'selected':''}>🌑 কৃষ্ণপক্ষ</option><option value="শুক্লপক্ষ" ${e.paksha==='শুক্লপক্ষ'?'selected':''}>🌕 শুক্লপক্ষ</option></select><input class="inp" value="${e.month||''}" id="ek-m-${i}" placeholder="মাস"><button class="btn btn-sm btn-red" onclick="document.getElementById('eka-r-${i}').remove()">✕</button></div>`).join('')||'<p style="color:var(--text3);font-size:.8rem">কোনো একাদশী নেই।</p>';}
+function addEka(){const rows=document.querySelectorAll('[id^="eka-r-"]');const idx=rows.length;const div=document.createElement('div');div.id=`eka-r-${idx}`;div.style.cssText='display:grid;grid-template-columns:1fr 2fr 1fr 1fr auto;gap:.45rem;margin-bottom:.45rem;align-items:center';div.innerHTML=`<input class="inp" type="date" id="ek-d-${idx}" value="${new Date().toISOString().split('T')[0]}"><input class="inp" id="ek-n-${idx}" placeholder="একাদশীর নাম"><select class="sel" id="ek-p-${idx}"><option value="কৃষ্ণপক্ষ">🌑 কৃষ্ণপক্ষ</option><option value="শুক্লপক্ষ">🌕 শুক্লপক্ষ</option></select><input class="inp" id="ek-m-${idx}" placeholder="মাস"><button class="btn btn-sm btn-red" onclick="this.parentElement.remove()">✕</button>`;document.getElementById('eka-list').appendChild(div);}
+function saveEka(){const rows=document.querySelectorAll('[id^="eka-r-"]');const list=[];rows.forEach(row=>{const idx=row.id.split('-')[2];const d=document.getElementById(`ek-d-${idx}`)?.value;const n=document.getElementById(`ek-n-${idx}`)?.value;if(d&&n)list.push({date:d,name:n,paksha:document.getElementById(`ek-p-${idx}`)?.value||'কৃষ্ণপক্ষ',month:document.getElementById(`ek-m-${idx}`)?.value||''});});list.sort((a,b)=>new Date(a.date)-new Date(b.date));DB.set('ekadashi',list);toast('✅ একাদশী চার্ট সংরক্ষিত! ('+list.length+' টি)');}
+function resetEka(){if(!confirm('ডিফল্টে ফিরবেন?'))return;DB.set('ekadashi',[]);loadEka();toast('↺ ডিফল্টে ফিরে গেছে');}
+
+// ===== CALENDAR NOTES =====
+function loadCalNotes(){renderCalNotes(DB.get('calendar_notes')||[]);}
+function renderCalNotes(list){document.getElementById('cal-notes-list').innerHTML=list.map((n,i)=>`<div style="display:grid;grid-template-columns:160px 1fr auto;gap:.5rem;margin-bottom:.5rem;align-items:center" id="cn-r-${i}"><input class="inp" type="date" value="${n.date||''}" id="cn-d-${i}"><input class="inp" value="${n.text||''}" id="cn-t-${i}" placeholder="নোটের বিষয়"><button class="btn btn-sm btn-red" onclick="this.parentElement.remove()">✕</button></div>`).join('')||'<p style="color:var(--text3);font-size:.8rem">কোনো নোট নেই।</p>';}
+function addCalNote(){const rows=document.querySelectorAll('[id^="cn-r-"]');const i=rows.length;const div=document.createElement('div');div.id=`cn-r-${i}`;div.style.cssText='display:grid;grid-template-columns:160px 1fr auto;gap:.5rem;margin-bottom:.5rem;align-items:center';div.innerHTML=`<input class="inp" type="date" id="cn-d-${i}" value="${new Date().toISOString().split('T')[0]}"><input class="inp" id="cn-t-${i}" placeholder="নোটের বিষয়"><button class="btn btn-sm btn-red" onclick="this.parentElement.remove()">✕</button>`;document.getElementById('cal-notes-list').appendChild(div);}
+function saveCalNotes(){const rows=document.querySelectorAll('[id^="cn-r-"]');const list=[];rows.forEach(row=>{const i=row.id.split('-')[2];const d=document.getElementById(`cn-d-${i}`)?.value;const t=document.getElementById(`cn-t-${i}`)?.value;if(d&&t)list.push({date:d,text:t});});DB.set('calendar_notes',list);toast('✅ ক্যালেন্ডার নোট সংরক্ষিত!');}
+
+// ===== COMMITTEE =====
+let cmImgB64=null;
+function handleCmImg(inp){if(!inp.files[0])return;const r=new FileReader();r.onload=e=>{cmImgB64=e.target.result;document.getElementById('cm-img-prev').innerHTML=`<img src="${cmImgB64}" class="img-preview">`;};r.readAsDataURL(inp.files[0]);}
+function addMember(){const name=document.getElementById('cm-name').value.trim(),role=document.getElementById('cm-role').value.trim();if(!name||!role){toast('নাম ও পদবি আবশ্যক','error');return;}const db=DB.get();db.committee=db.committee||[];db.committee.push({id:Date.now(),name,role,phone:document.getElementById('cm-phone').value||'',bio:document.getElementById('cm-bio').value||'',facebook:document.getElementById('cm-fb').value||'',order:parseInt(document.getElementById('cm-order').value)||db.committee.length+1,image:cmImgB64||null});localStorage.setItem('mandir_db',JSON.stringify(db));['cm-name','cm-role','cm-phone','cm-bio','cm-fb','cm-order'].forEach(id=>document.getElementById(id).value='');cmImgB64=null;document.getElementById('cm-img-prev').innerHTML='<div style="font-size:1.8rem;color:var(--text3)">👤</div><p style="font-size:.72rem;color:var(--text3);margin-top:.3rem">ছবি আপলোড করুন</p>';toast('✅ সদস্য যোগ হয়েছে!');loadCommittee();}
+function deleteMember(id){if(!confirm('মুছবেন?'))return;const db=DB.get();db.committee=(db.committee||[]).filter(m=>m.id!==id);localStorage.setItem('mandir_db',JSON.stringify(db));loadCommittee();toast('🗑 মুছে গেছে');}
+function loadCommittee(){const m=(DB.get('committee')||[]).sort((a,b)=>a.order-b.order);document.getElementById('cm-tbody').innerHTML=m.length?m.map(x=>`<tr><td>${x.image?`<img src="${x.image}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;margin-right:.4rem;border:1px solid var(--border)">`:''}<span style="color:var(--gold)">${x.name}</span></td><td><span class="badge badge-gold">${x.role}</span></td><td style="color:var(--text3)">${x.phone||'-'}</td><td><button class="btn btn-sm btn-red" onclick="deleteMember(${x.id})">✕</button></td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:1.5rem">কোনো সদস্য নেই</td></tr>';}
+
+// ===== ORGANIZATION =====
+let orgLogoB64=null,orgCoverB64=null;
+function handleOrgLogo(inp){if(!inp.files[0])return;const r=new FileReader();r.onload=e=>{orgLogoB64=e.target.result;document.getElementById('org-logo-prev').innerHTML=`<img src="${orgLogoB64}" class="img-preview">`;};r.readAsDataURL(inp.files[0]);}
+function handleOrgCover(inp){if(!inp.files[0])return;const r=new FileReader();r.onload=e=>{orgCoverB64=e.target.result;document.getElementById('org-cover-prev').innerHTML=`<img src="${orgCoverB64}" class="img-preview">`;};r.readAsDataURL(inp.files[0]);}
+function loadOrg(){const org=DB.get('organization')||{};document.getElementById('org-name').value=org.name||'ছাত্রসংঘ';document.getElementById('org-founded').value=org.founded||'';document.getElementById('org-fb').value=org.facebook_link||'';document.getElementById('org-website').value=org.website_link||'';document.getElementById('org-members').value=org.members||'';document.getElementById('org-volunteers').value=org.volunteers||'';document.getElementById('org-programs').value=org.programs_yearly||'';document.getElementById('org-history').value=org.history||'';document.getElementById('org-mission').value=org.mission||'';document.getElementById('org-vision').value=org.vision||'';if(org.logo){orgLogoB64=org.logo;document.getElementById('org-logo-prev').innerHTML=`<img src="${org.logo}" class="img-preview">`;}if(org.cover_photo){orgCoverB64=org.cover_photo;document.getElementById('org-cover-prev').innerHTML=`<img src="${org.cover_photo}" class="img-preview">`;}}
+function saveOrg(){const ex=DB.get('organization')||{};DB.set('organization',{...ex,name:document.getElementById('org-name').value||'ছাত্রসংঘ',founded:document.getElementById('org-founded').value,facebook_link:document.getElementById('org-fb').value,website_link:document.getElementById('org-website').value,members:document.getElementById('org-members').value,volunteers:document.getElementById('org-volunteers').value,programs_yearly:document.getElementById('org-programs').value,history:document.getElementById('org-history').value,mission:document.getElementById('org-mission').value,vision:document.getElementById('org-vision').value,logo:orgLogoB64||ex.logo,cover_photo:orgCoverB64||ex.cover_photo});toast('✅ সংগঠনের তথ্য সংরক্ষিত!');}
+
+// ===== DEITIES =====
+function loadDeities(){const d=DB.get('deities')||[];document.getElementById('deities-list').innerHTML=d.map((x,i)=>`<div class="card" style="margin-bottom:.8rem"><div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.7rem;align-items:start"><div><label class="lbl">নাম</label><input class="inp" value="${x.name}" id="de-n-${i}"></div><div><label class="lbl">শিরোনাম</label><input class="inp" value="${x.title||''}" id="de-t-${i}"></div><div><label class="lbl">শব্দ</label><select class="sel" id="de-s-${i}"><option value="bell" ${x.sound==='bell'?'selected':''}>🔔 ঘণ্টা</option><option value="conch" ${x.sound==='conch'?'selected':''}>🐚 শঙ্খ</option></select></div><button class="btn btn-sm btn-gold" onclick="saveDeity(${i})" style="margin-top:1.2rem">💾</button></div><div style="margin-top:.7rem"><label class="lbl">ছবি</label><div class="upload-box" style="padding:.8rem" onclick="document.getElementById('de-img-${i}').click()"><input type="file" id="de-img-${i}" accept="image/*" style="display:none" onchange="handleDeityImg(this,${i})">${x.image?`<img src="${x.image}" class="img-preview" id="de-ip-${i}">` :`<div id="de-ip-${i}"><div style="font-size:1.5rem;color:var(--text3)">🙏</div></div>`}</div></div></div>`).join('');}
+function handleDeityImg(inp,i){if(!inp.files[0])return;const r=new FileReader();r.onload=e=>{const d=DB.get('deities');d[i].image=e.target.result;DB.set('deities',d);document.getElementById(`de-ip-${i}`).outerHTML=`<img src="${e.target.result}" class="img-preview" id="de-ip-${i}">`;toast('✅ ছবি আপলোড!');};r.readAsDataURL(inp.files[0]);}
+function saveDeity(i){const d=DB.get('deities');d[i].name=document.getElementById(`de-n-${i}`).value;d[i].title=document.getElementById(`de-t-${i}`).value;d[i].sound=document.getElementById(`de-s-${i}`).value;DB.set('deities',d);toast('✅ সংরক্ষিত!');}
+
+// ===== SEVA =====
+function loadSeva(){renderSeva(DB.get('seva_options')||[]);}
+function renderSeva(list){document.getElementById('seva-list').innerHTML=list.map((s,i)=>`<div style="display:grid;grid-template-columns:45px 2fr 90px 80px 2fr auto;gap:.5rem;margin-bottom:.5rem;align-items:center"><input class="inp" value="${s.icon||'🌸'}" id="sv-ic-${i}" style="text-align:center;padding:.5rem .3rem"><input class="inp" value="${s.name||''}" id="sv-nm-${i}" placeholder="সেবার নাম"><input class="inp" type="number" value="${s.amount||0}" id="sv-am-${i}"><select class="sel" id="sv-ft-${i}"><option value="false" ${!s.featured?'selected':''}>সাধারণ</option><option value="true" ${s.featured?'selected':''}>জনপ্রিয়</option></select><input class="inp" value="${s.description||''}" id="sv-ds-${i}" placeholder="বিবরণ"><button class="btn btn-sm btn-red" onclick="this.parentElement.remove()">✕</button></div>`).join('');}
+function addSeva(){const list=DB.get('seva_options')||[];list.push({id:Date.now(),icon:'🌸',name:'',amount:501,description:'',featured:false});renderSeva(list);}
+function saveSeva(){const rows=document.getElementById('seva-list').children;const list=Array.from(rows).map((_,i)=>({id:i+1,icon:document.getElementById(`sv-ic-${i}`)?.value||'🌸',name:document.getElementById(`sv-nm-${i}`)?.value||'',amount:parseFloat(document.getElementById(`sv-am-${i}`)?.value)||0,featured:document.getElementById(`sv-ft-${i}`)?.value==='true',description:document.getElementById(`sv-ds-${i}`)?.value||''}));DB.set('seva_options',list);toast('✅ সেবা অপশন সংরক্ষিত!');}
+
+// ===== DONATIONS =====
+function loadDons(){const d=DB.get('donations')||[];const total=d.reduce((s,x)=>s+parseFloat(x.amount||0),0);const today=d.filter(x=>new Date(x.date).toDateString()===new Date().toDateString());const todayT=today.reduce((s,x)=>s+parseFloat(x.amount||0),0);document.getElementById('don-stats').innerHTML=`<div class="sc"><div class="l">মোট অনুদান</div><div class="v">৳${total.toLocaleString()}</div></div><div class="sc"><div class="l">আজকের</div><div class="v">৳${todayT.toLocaleString()}</div><div class="s">${today.length} টি</div></div><div class="sc"><div class="l">মোট দাতা</div><div class="v">${d.length}</div></div>`;document.getElementById('don-tbody').innerHTML=d.length?d.map((x,i)=>`<tr><td style="color:var(--text3)">#${String(x.id).slice(-5)}</td><td style="color:var(--gold)">${x.name}</td><td>${x.phone||'-'}</td><td><strong>৳${parseFloat(x.amount).toLocaleString()}</strong></td><td>${x.seva||'-'}</td><td><span class="badge badge-gold">${x.payment_method||'-'}</span></td><td style="color:var(--text3);font-size:.72rem">${new Date(x.date).toLocaleDateString('bn-BD')}</td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:1.5rem">কোনো অনুদান নেই</td></tr>';}
+function exportDons(){const d=DB.get('donations')||[];if(!d.length){toast('কোনো ডেটা নেই','error');return;}const csv=['নাম,ফোন,পরিমাণ,সেবা,পেমেন্ট,তারিখ'].concat(d.map(x=>`"${x.name}","${x.phone||''}","${x.amount}","${x.seva||''}","${x.payment_method||''}","${new Date(x.date).toLocaleDateString()}"`)).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv'}));a.download='donations.csv';a.click();}
+function clearDons(){DB.set('donations',[]);loadDons();toast('🗑 অনুদান তালিকা মুছে গেছে');}
+
+// ===== OPINIONS =====
+function loadOpinions(){const ops=DB.get('member_opinions')||[];const pend=ops.filter(o=>!o.approved);document.getElementById('op-count').textContent=`মোট: ${ops.length} | অপেক্ষায়: ${pend.length}`;document.getElementById('op-list').innerHTML=ops.length?ops.map(o=>`<div style="background:var(--surface3);border:1px solid ${o.approved?'rgba(46,204,113,.2)':'var(--bl)'};border-radius:12px;padding:.9rem;margin-bottom:.7rem"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem"><div><span style="color:var(--gold);font-weight:600;font-size:.83rem">${o.name}</span><span style="color:var(--text3);font-size:.7rem;margin-left:.5rem">${new Date(o.date).toLocaleString('bn-BD')}</span></div><div style="display:flex;gap:.3rem">${!o.approved?`<button class="btn btn-sm btn-green" onclick="approveOp(${o.id})">✅</button>`:'<span class="badge badge-green">✓</span>'}<button class="btn btn-sm btn-red" onclick="deleteOp(${o.id})">✕</button></div></div><div style="font-size:.82rem;color:var(--text2)">${o.text}</div></div>`).join(''):'<p style="color:var(--text3);text-align:center;padding:2rem">কোনো মতামত নেই</p>';}
+function approveOp(id){const db=DB.get();const op=(db.member_opinions||[]).find(o=>o.id===id);if(op){op.approved=true;localStorage.setItem('mandir_db',JSON.stringify(db));loadOpinions();toast('✅ অনুমোদিত!');}}
+function deleteOp(id){const db=DB.get();db.member_opinions=(db.member_opinions||[]).filter(o=>o.id!==id);localStorage.setItem('mandir_db',JSON.stringify(db));loadOpinions();toast('🗑 মুছে গেছে');}
+
+// ===== ANALYTICS =====
+function loadAnalytics(){const s=DB.getVisitorStats();document.getElementById('ana-stats').innerHTML=`<div class="sc"><div class="l">আজকের ভিজিটর</div><div class="v">${s.todayCount}</div></div><div class="sc"><div class="l">মোট ভিজিটর</div><div class="v">${s.total}</div></div><div class="sc"><div class="l">এই মাস</div><div class="v">${Object.values(s.monthly).slice(-1)[0]||0}</div></div><div class="sc"><div class="l">এই বছর</div><div class="v">${s.annual[new Date().getFullYear()]||0}</div></div>`;const mon=Object.entries(s.monthly).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,12);document.getElementById('ana-monthly').innerHTML=mon.map(([m,c])=>`<div style="display:flex;justify-content:space-between;padding:.45rem .3rem;border-bottom:1px solid rgba(255,255,255,.05);font-size:.8rem"><span style="color:var(--text2)">${m}</span><span style="color:var(--gold)">${c}</span></div>`).join('')||'<p style="color:var(--text3);text-align:center;padding:1rem">কোনো ডেটা নেই</p>';document.getElementById('ana-annual').innerHTML=Object.entries(s.annual).sort((a,b)=>b[0]-a[0]).map(([y,c])=>`<div style="display:flex;justify-content:space-between;padding:.55rem .3rem;border-bottom:1px solid rgba(255,255,255,.05);font-size:.88rem"><span style="color:var(--text2)">${y}</span><span style="color:var(--gold);font-weight:700">${c}</span></div>`).join('')||'<p style="color:var(--text3);text-align:center;padding:1rem">কোনো ডেটা নেই</p>';const today=new Date();const rows=[];for(let i=0;i<30;i++){const d=new Date(today);d.setDate(d.getDate()-i);const k=d.toISOString().split('T')[0];const cnt=s.daily[k]||0;rows.push(`<div style="display:flex;justify-content:space-between;padding:.38rem .3rem;border-bottom:1px solid rgba(255,255,255,.04);font-size:.76rem"><span style="color:var(--text3)">${k}</span><span style="color:${cnt>0?'var(--gold)':'var(--text3)'}">${cnt}</span></div>`);}document.getElementById('ana-daily').innerHTML=rows.join('');}
+
+// ===== ADMIN PASS =====
+function changePass(){const u=document.getElementById('new-uname').value.trim(),p=document.getElementById('new-pass').value,c=document.getElementById('conf-pass').value;if(!u||!p){toast('সব তথ্য দিন','error');return;}if(p!==c){toast('পাসওয়ার্ড মিলছে না','error');return;}const db=DB.get();db.admin.username=u;db.admin.password=p;localStorage.setItem('mandir_db',JSON.stringify(db));toast('✅ পাসওয়ার্ড পরিবর্তন হয়েছে!');['new-uname','new-pass','conf-pass'].forEach(id=>document.getElementById(id).value='');}
+
+// ===== EXPORT / IMPORT =====
+function exportAll(){const db=DB.get();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({exported_at:new Date().toISOString(),...db},null,2)],{type:'application/json'}));a.download='mandir_backup_'+new Date().toISOString().split('T')[0]+'.json';a.click();toast('✅ ডেটা এক্সপোর্ট হয়েছে!');}
+function importAll(inp){if(!inp.files[0])return;const r=new FileReader();r.onload=e=>{try{const data=JSON.parse(e.target.result);Object.entries(data).forEach(([k,v])=>{if(!['exported_at'].includes(k))DB.set(k,v);});toast('✅ ডেটা ইম্পোর্ট সফল! পেজ রিলোড হচ্ছে...');setTimeout(()=>location.reload(),1500);}catch(err){toast('❌ ফাইল পড়তে সমস্যা','error');}};r.readAsText(inp.files[0]);}
+
+// ===== LOGOUT =====
+function doLogout(){sessionStorage.removeItem('mandir_admin');sessionStorage.removeItem('mandir_admin_time');window.location.href='login.html';}
+
+// ===== INIT =====
+if(sessionStorage.getItem('mandir_admin')!=='true'){window.location.href='login.html';}
+const lt=sessionStorage.getItem('mandir_admin_time');if(lt)document.getElementById('login-time').textContent='লগইন: '+new Date(lt).toLocaleTimeString('bn-BD');
+loadDash();
+</script>
+</body>
+</html>

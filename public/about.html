@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>পরিচিতি — মন্দির</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="flower-canvas"></canvas>
+<div id="nav-ph"></div><div id="ticker-ph"></div>
+<div class="page-wrapper">
+  <div class="page-header"><span class="label">আমাদের সম্পর্কে</span><h1>মন্দির পরিচিতি</h1></div>
+  <section style="padding:3rem 2rem;max-width:800px;margin:0 auto" id="about-content"></section>
+</div>
+<div id="footer-ph"></div>
+<script src="../database/db.js"></script>
+<script src="js/main.js"></script>
+<script src="js/animations.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  if(typeof MandirFX!=='undefined')MandirFX.initTheme();
+  DB.init();const db=DB.get(),s=db.settings;
+  document.getElementById('nav-ph').innerHTML=getNavHTML(s);
+  document.getElementById('ticker-ph').innerHTML=getTickerHTML(s.ticker_text);
+  document.getElementById('footer-ph').innerHTML=getFooterHTML(s);
+  document.title='পরিচিতি — '+s.mandir_name;initNav();
+  const el=document.getElementById('about-content');
+  el.innerHTML=`
+    ${s.logo?`<div style="text-align:center;margin-bottom:1.5rem"><img src="${s.logo}" style="width:100px;height:100px;border-radius:50%;border:3px solid var(--gold);object-fit:cover"></div>`:''}
+    <div class="card fade-in" style="text-align:center;margin-bottom:1.5rem">
+      <div style="font-family:var(--font-deva);font-size:2.5rem;color:var(--gold);margin-bottom:.5rem">ॐ</div>
+      <h2 style="font-family:var(--font-display);font-size:1rem;background:linear-gradient(135deg,var(--gold-light),var(--saffron));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.3rem">${s.mandir_name}</h2>
+      <p style="font-size:.78rem;color:var(--gray)">${s.tagline||''}</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+      <div class="card fade-in"><div style="font-size:1.4rem;margin-bottom:.3rem">📍</div><div style="font-size:.78rem;color:var(--gold);margin-bottom:.2rem">ঠিকানা</div><div style="font-size:.82rem;color:rgba(255,255,255,.7)">${s.address||'—'}</div></div>
+      <div class="card fade-in"><div style="font-size:1.4rem;margin-bottom:.3rem">📞</div><div style="font-size:.78rem;color:var(--gold);margin-bottom:.2rem">যোগাযোগ</div><div style="font-size:.82rem;color:rgba(255,255,255,.7)">${s.phone||'—'}</div></div>
+      <div class="card fade-in"><div style="font-size:1.4rem;margin-bottom:.3rem">📧</div><div style="font-size:.78rem;color:var(--gold);margin-bottom:.2rem">ইমেইল</div><div style="font-size:.82rem;color:rgba(255,255,255,.7)">${s.email||'—'}</div></div>
+      <div class="card fade-in"><div style="font-size:1.4rem;margin-bottom:.3rem">📅</div><div style="font-size:.78rem;color:var(--gold);margin-bottom:.2rem">প্রতিষ্ঠা</div><div style="font-size:.82rem;color:rgba(255,255,255,.7)">${s.established||'—'}</div></div>
+    </div>
+  `;
+  initScrollAnim();
+});
+</script>
+</body>
+</html>
